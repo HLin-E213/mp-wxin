@@ -1,0 +1,12 @@
+# dist
+/unpackage
+
+# npm
+/node_modules
+/package-lock.json
+
+# webstorm
+.idea
+.DS_Store
+.hbuilderx
+

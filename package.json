@@ -1,0 +1,26 @@
+{
+  "name": "dajx-client-uni",
+  "version": "1.0.0",
+  "description": "大爱金孝云养老uniapp版",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "dayjs": "^1.9.6"
+  },
+  "devDependencies": {
+    "@types/html5plus": "^1.0.1",
+    "@types/uni-app": "^1.4.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.dajxyl.com:eson/dajx-client-uni.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
