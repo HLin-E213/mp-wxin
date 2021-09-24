@@ -757,7 +757,7 @@ export default {
     },
     changePopup({show}) {
       this.showPopup = show;
-      this.selectType = 0
+      this.selectType = show?this.selectType:0
     },
     closePopup(){
       this.$refs.popup.close();
