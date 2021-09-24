@@ -30,7 +30,7 @@
 
         <!--  搜索栏    -->
         <view class="search-box">
-          <searchBar :isFocus="isFocus"></searchBar>
+          <searchBar v-if="!isFocus"></searchBar>
         </view>
       <view class="totation-box" v-if="!isCategory">
         <!--  轮播图  -->
@@ -139,7 +139,7 @@ import active from './components/activity'
 import {
   rotationPicture
 } from '@/api/index.js';
-import emptyData from '../shop/search/components/empty-data'
+import emptyData from './components/empty-data'
 
 export default {
   name: 'shop',
@@ -278,7 +278,6 @@ export default {
     this.get_rotation();
   },
   onShow() {
-    this.isFocus = false
     const categoryId =  uni.getStorageSync('setDefaultShopCategoryId');
     if (categoryId && categoryId !== 'none') {
       this.categoryId = categoryId;
@@ -288,6 +287,7 @@ export default {
       this.getProductList();
       uni.removeStorageSync('setDefaultShopCategoryId');
     }
+    this.clickLeft()
     this.getCartCount();
   },
   onReachBottom() {
@@ -544,6 +544,10 @@ export default {
     },
     // 分类后返回
     clickLeft(){
+      this.isFocus = true
+      this.$nextTick(()=>{
+        this.isFocus = false
+      })
       this.showBcakImg = false
       this.isCategory = false
       this.categoryId = ''

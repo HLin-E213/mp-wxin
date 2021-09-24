@@ -18,7 +18,7 @@
                           @blur="onBlur"
                           bgColor="#F8F8F8"
                           :modelValue="inputShowVal"
-                          :placeholder="historySearchList[0]||''"
+                          :placeholder="placeholderText"
                           :radius="18">
             <uni-icons slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
           </uni-search-bar>
@@ -216,6 +216,10 @@ export default {
     }
   },
   computed: {
+    placeholderText(){
+      let txt = this.historySearchList && this.historySearchList[0]? this.historySearchList[0]:''
+      return txt
+    },
     skuPrice() {
       const { price = 0} = this.selectSKU;
       if (this.promotingSku) {

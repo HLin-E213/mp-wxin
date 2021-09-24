@@ -757,6 +757,7 @@ export default {
     },
     changePopup({show}) {
       this.showPopup = show;
+      this.selectType = 0
     },
     closePopup(){
       this.$refs.popup.close();
@@ -1389,5 +1390,8 @@ export default {
     color: #666;
     font-size: 16px;
   }
+}
+/deep/ .uni-searchbar__box{
+  border-radius: 36rpx !important;
 }
 </style>

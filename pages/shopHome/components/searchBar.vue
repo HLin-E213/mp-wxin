@@ -8,6 +8,7 @@
                       @blur="onBlur"
                       bgColor="#F8F8F8"
                       :radius="18"
+                      :focus="isFocus"
                       :list="historySearchList"
                       @hClick="onClick">
         <uni-icons slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
@@ -29,9 +30,13 @@ export default {
   data() {
     return {
       keyword: '', // 搜索词
+      isFocus: false,
       iconUrl: require('../../../static/search2.png'),
       historySearchList: []
     }
+  },
+  onShow(){
+    this.isFocus = false
   },
   mounted(){
     this.getHistory()

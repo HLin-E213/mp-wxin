@@ -130,6 +130,7 @@
 					if (newVal) {
 						this.show = true
 					} else{
+					  console.log('333333333333333333333333333333')
 					  this.show = false
           }
 				}
