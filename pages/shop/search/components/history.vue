@@ -11,7 +11,7 @@
      <view :class="showMore ? 'on history-item' : 'history-item'" :style="newHeight >= 236 ? 'height: 236rpx' : 'height: auto'">
        <block v-for="(item,index) in historySearchList" :key="index">
          <view class="h-item-list">
-           <view class="con-btn">{{item}}</view>
+           <view class="con-btn" @click="toGoods(item)">{{item}}</view>
          </view>
        </block>
        <view
@@ -22,10 +22,6 @@
          <uni-icons type="arrowup" size="12" color="#666666" v-if="showMore"></uni-icons>
        </view>
      </view>
-<!--       <view class="more-btn" @tap="toChange" v-if="newHeight >= 236 || oldHeight > 132">
-         <uni-icons type="arrowdown" size="12" color="#666666" v-if="!showMore"></uni-icons>
-         <uni-icons type="arrowup" size="12" color="#666666" v-if="showMore"></uni-icons>
-       </view>-->
      </view>
  </view>
 </template>
@@ -88,7 +84,10 @@ export default {
     //清空历史记录
     clearAll() {
       this.$emit('clearAll')
-    }
+    },
+	toGoods(v){
+		this.$emit('toGoods', {value: v})
+	}
   }
 }
 </script>

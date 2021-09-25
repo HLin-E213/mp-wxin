@@ -4,7 +4,9 @@
       <text class="tit">热搜商品</text>
     </view>
     <view class="pro-container">
-        <view class="list-items" v-for="(item, index) in list" :key="index">#{{item.name}}#</view>
+        <view class="list-items"
+		 v-for="(item, index) in list" :key="index"
+		  @click="()=>{this.$emit('clickHot', {value: item})}">#{{item}}#</view>
     </view>
   </view>
 </template>

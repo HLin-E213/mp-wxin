@@ -42,6 +42,7 @@ export default {
     this.getHistory()
   },
   methods: {
+	  // 获取历史搜索
     async getHistory(){
       let list = await uni.getStorage({
         key: 'searchList'

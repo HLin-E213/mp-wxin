@@ -1,15 +1,7 @@
 <template>
   <view class="activity">
-    <view class="act-title">
-      <view class="tit-left">限时抢购</view>
-      <view class="tit-right">
-        <view>新人专区</view>
-        <view class="price-intro">低脂1元购</view>
-      </view>
-    </view>
-    <view class="act-content">
-<!--      <image class="preview-img" src="https://admin.dajxyl.com/oss?path=img/WechatIMG1047041.jpeg" mode="" @click="gotoInfo()"></image>-->
-      <swiper
+    
+    <view class="act-content"><swiper
           class="swiper"
           circular
           :autoplay="autoplay"
@@ -20,10 +12,20 @@
           :style="{height: height}"
       >
         <swiper-item v-for="(item, k) in lists" :key="k">
-          <view class="category-box">
-            <view v-for="(e, i) in item" class="boc" :key="i">
+          <view class="category-box" v-for="(e, i) in item" :key="i">
+			  <view class="act-title">
+			    <view class="tit-left">限时抢购</view>
+			    <view class="tit-right">
+			      <view>{{e.name}}</view>
+			      <view class="price-intro">{{e.subtitle}}</view>
+			    </view>
+			  </view>
+			 
+            <view class="boc" >
               <view class="preview-img">
-                <image class="preview-img" :src="e && e.img_src" mode="" @click="gotoInfo(e)" v-if="e && e.img_src"></image>
+                <image class="preview-img"
+				 :src="e && e.product_promotion_category_image"
+				  mode="" @click="gotoInfo(e)" v-if="e && e.product_promotion_category_image"></image>
               </view>
             </view>
           </view>
@@ -36,6 +38,12 @@
 <script>
 export default {
   name: "activity",
+  props: {
+	  promotionList: {
+		  type: Array,
+		  default: () => []
+	  }
+  },
   data() {
     return {
       height: '220rpx',
@@ -44,29 +52,14 @@ export default {
       interval: 5000,
       duration: 1000,
       previous_margin: '0',
-      next_margin: '0',
-      img_list: [
-        {
-          img_src: 'https://admin.dajxyl.com/oss?path=img/WechatIMG1047041.jpeg',
-          name: '生活用品'
-        },{
-          img_src: 'https://admin.dajxyl.com/oss?path=img/WechatIMG1047041.jpeg',
-          name: '生活用品'
-        },{
-          img_src: 'https://admin.dajxyl.com/oss?path=img/WechatIMG1047041.jpeg',
-          name: '生活用品'
-        },{
-          img_src: 'https://admin.dajxyl.com/oss?path=img/WechatIMG1047041.jpeg',
-          name: '生活用品'
-        }
-      ]
+      next_margin: '0'
     }
   },
   computed: {
     lists() {
       let arr = [];
       // 赋值给另一个数组
-      let newarr = arr.concat(this.img_list);
+      let newarr = arr.concat(this.promotionList);
       // 处理新数组，原数组不变
       // 打印结果
       let len = newarr.length;
@@ -77,11 +70,14 @@ export default {
         let temp = newarr.slice(i * n, i * n + n);
         arr2.push(temp);
       }
+	  console.log('arr2arr2arr2arr2arr2z', arr2)
       return arr2;
     }
   },
   methods: {
-    gotoInfo(obj) {}
+    gotoInfo(obj) {
+		this.$emit('toCategoty', obj)
+	}
   }
 }
 </script>
@@ -92,19 +88,32 @@ export default {
   padding: 26rpx;
   background-color: #FFECEC;
   border-radius: 10rpx;
+  
+  .act-content{
+    width: 100%;
+    height: 100%;
+  }
+}
+.category-box{
+  // display: flex;
+  // justify-content: space-around;
   .act-title{
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 34rpx;
     padding-bottom: 20rpx;
+	width: 100%;
     .tit-right{
       display: flex;
       align-items: center;
+	  justify-content: flex-end;
+		flex: 1;
       .price-intro{
+		  min-width: 80rpx;
         color: #ffffff;
         text-align:center;
-        padding: 10rpx 15rpx;
+        padding: 10rpx 0;
         background: #FD7C09;
         font-size: 24rpx;
         border-top-left-radius: 30rpx;
@@ -113,14 +122,6 @@ export default {
       }
     }
   }
-  .act-content{
-    width: 100%;
-    height: 100%;
-  }
-}
-.category-box{
-  display: flex;
-  justify-content: space-around;
   .boc {
     width: calc(50% - 13rpx);
   }

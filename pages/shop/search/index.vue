@@ -26,10 +26,9 @@
         <view class="dajx-search-btn" @click="search">搜索</view>
       </view>
       <!--  历史搜索  -->
-      <history ref="history" :list="historySearchList" @clearAll="clearAll" v-if="historySearchList.length && !isSearch"></history>
+      <history ref="history" :list="historySearchList" @toGoods="search" @clearAll="clearAll" v-if="historySearchList.length && !isSearch"></history>
       <!--  热搜商品  -->
-      <hotProduct :list="hotProList" v-if="!isSearch"></hotProduct>
-
+      <hotProduct :list="hotProList" @clickHot="search" v-if="!isSearch"></hotProduct>
       <!--   商品   -->
       <view v-if="isSearch && good_list.length">
         <view class="goods-list-wrap">
@@ -111,7 +110,7 @@ import hotProduct from './components/hotProduct'
 import emptyData from './components/empty-data'
 import movable from '@/components/movableArea/index.vue';
 import goodList from "@/pages/shopHome/components/good/goodList.vue";
-import {getProductInfo, getProductList, getProductSKU} from "@/api/shop/product";
+import {getProductInfo, getProductList, getProductSKU, getHotProduct} from "@/api/shop/product";
 import {addCart, getCartCount} from "@/api/shop/cart";
 import { getCategoryList } from '@/api';
 import { fenToYuan } from '@/utils/money';
@@ -140,18 +139,7 @@ export default {
       isFocus: true,
       isEmpty: false, // 是否空热搜商品
       inputShowVal: '',
-      hotProList: [
-        {id: 1, name: '人参果'},
-        {id: 2, name: '人参果'},
-        {id: 3, name: '人参人参果人参果人参果人参果人参果果'},
-        {id: 4, name: '人参果'},
-        {id: 1, name: '人参果人参果人参果人参果人参果人参果人参果人参果'},
-        {id: 1, name: '人参果'},
-        {id: 1, name: '人参果'},
-        {id: 1, name: '人参人参果人参果人参果人参果人参果果'},
-        {id: 1, name: '人参果'},
-        {id: 1, name: '人人参果人参果人参果人参果参果'},
-      ],
+      hotProList: [],
       // 商品列表
       viewId: 'menu0',
       page: 1,
@@ -266,7 +254,6 @@ export default {
     }
   },
   mounted() {
-    this.getHistory()
   },
   onShow() {
     this.isFocus = false
@@ -280,6 +267,8 @@ export default {
       uni.removeStorageSync('setDefaultShopCategoryId');
     }
     this.getCartCount();
+	this.getHotProduct();
+	this.getHistory();
   },
   onReachBottom() {
     if (this.page < this.totalPage) {
@@ -293,12 +282,13 @@ export default {
     this.getProductList();
   },
   methods: {
-    search() {
-      this.keyword = this.keyword.replace(/(^\s*)|(\s*$)/g, '')
+	  // 搜索数据
+    search(e) {
+      this.keyword = e.value.replace(/(^\s*)|(\s*$)/g, '')
       const patrn = /[`~!@#$%^&*()_\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘’，。、]/im
       if (patrn.test(this.keyword) || this.keyword == '') {
         if(this.hotProList.length){
-          this.categoryId = this.hotProList[0].id
+          this.keyword = this.hotProList[0].name
         }
       } else {
         if (!this.historySearchList.includes(this.keyword)) {
@@ -318,8 +308,8 @@ export default {
           });
         }
       }
-      this.isSearch = true
-      this.good_list = []
+      this.isSearch = true;
+      this.good_list = [];
       this.getProductList();
     },
     async getHistory() {
@@ -348,8 +338,9 @@ export default {
     },
     onfocus() {
     },
+	// 获取商品
     getProductList: function() {
-      const ret = getProductList(false, this.categoryId, this.pageSize, this.page);
+      const ret = getProductList(false, this.categoryId, this.keyword, this.pageSize, this.page);
       ret.then((value) => {
         this.totalPage = value.data.data.totalPage;
         if (this.page === 1) {
@@ -362,6 +353,13 @@ export default {
         uni.stopPullDownRefresh();
       });
     },
+	// 获取热搜商品
+	getHotProduct: function() {
+		const ret = getHotProduct();
+		ret.then((value)=>{
+			this.hotProList = value.data.data.info
+		})
+	},
     getCartCount: function () {
       const token = uni.getStorageSync('token');
       if (token) {
@@ -401,7 +399,6 @@ export default {
             ];
           }
         });
-        console.log('this.desc_img', this.desc_img);
         // 优惠券
         if (value.data.data.info.coupon_list.length > 0) {
           this.coupon = '领取优惠券';
@@ -430,7 +427,6 @@ export default {
     openSku: function (item) {
       this.$refs.popup.open();
       // 打开规格选择时候，记录住之前选中的sku以及数量,方便取消时候回填处理
-      console.log(item);
       this.getProductInfo(item.id);
       this.beforeSelectSku = JSON.parse(JSON.stringify(this.selectSKU));
       this.beforeGoodNum = this.good_num;

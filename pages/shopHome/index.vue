@@ -1,11 +1,5 @@
 <template>
   <view class="show-home">
-<!--  <layout :title="title"
-          :showBcakImg="showBcakImg"
-          :showFooter="false"
-          footerHeight="0"
-          @clickLeft="clickLeft"
-  >-->
     <uni-nav-bar
         :title="title"
         :showBcakImg="showBcakImg"
@@ -45,8 +39,8 @@
         </view>
       </view>
       <!--   活动   -->
-      <view v-if="!isCategory">
-        <active></active>
+      <view v-if="!isCategory && promotionList.length">
+        <active :promotion-list="promotionList" @toCategoty="handleClickCategory"></active>
       </view>
       <view v-if="good_list.length">
         <view class="goods-list-wrap">
@@ -117,8 +111,6 @@
         direction="all"
         :num="good_car_num"
     ></movable>
-
-<!--  </layout>-->
   </view>
 </template>
 
@@ -128,7 +120,7 @@ import uniNavBar from "@/components/uni-nav-bar/uni-nav-bar.vue"
 import layout from "@/components/layout/index.vue";
 import movable from '@/components/movableArea/index.vue';
 import goodList from "./components/good/goodList.vue";
-import {getProductInfo, getProductList, getProductSKU} from "../../api/shop/product";
+import {getProductInfo, getProductList, getProductSKU, getPromotionProduct} from "../../api/shop/product";
 import {addCart, getCartCount} from "../../api/shop/cart";
 import { getCategoryList } from '../../api';
 import { fenToYuan } from '@/utils/money';
@@ -221,9 +213,11 @@ export default {
       isPromotioning: false, // 是否正在促销中、为false代表促销活动还未开始
       isNotchScreen,
       ids: 1,
-      img_list: [],
-      isFocus: false,
-      isCategory: false
+      img_list: [], // 首页轮播
+      isFocus: false, // 是否获取焦点
+      isCategory: false, // 是否是分类搜索
+	  keyword: '', // 关键词
+	  promotionList: [], // 活动列表
     }
   },
   computed: {
@@ -289,6 +283,7 @@ export default {
     }
     this.clickLeft()
     this.getCartCount();
+	this.getPromotionProduct()
   },
   onReachBottom() {
     if (this.page < this.totalPage) {
@@ -302,10 +297,18 @@ export default {
     this.getProductList();
   },
   methods:{
+	  // 获取活动商品列表
+	  getPromotionProduct: function() {
+		  let that = this
+		  const res = getPromotionProduct();
+		  res.then(function (e) {
+		    that.promotionList = e.data.data.info;
+		  });
+	  },
     /*获取首页轮播图列表数据*/
     get_rotation: function () {
       let that = this;
-      let res = rotationPicture([1, 14]);
+      let res = rotationPicture(22);
       res.then(function (e) {
         that.img_list = e.data.data.info;
       });
@@ -332,7 +335,7 @@ export default {
       })
     },
     getProductList: function() {
-      const ret = getProductList(false, this.categoryId, this.pageSize, this.page);
+      const ret = getProductList(false, this.categoryId, this.keyword, this.pageSize, this.page);
       ret.then((value) => {
         this.totalPage = value.data.data.totalPage;
         if (this.page === 1) {
@@ -542,7 +545,7 @@ export default {
         });
       }
     },
-    // 分类后返回
+    // 分类后返回 初始化一些数据
     clickLeft(){
       this.isFocus = true
       this.$nextTick(()=>{
@@ -552,11 +555,11 @@ export default {
       this.isCategory = false
       this.categoryId = ''
       this.title = '养老商城'
-      this.page = 1;
-      this.pageSize = 10;
-      this.good_list = [];
-      uni.showLoading({title: '数据加载中，请稍后'});
-      this.getProductList();
+	  this.page = 1;
+	  this.pageSize = 10;
+	  this.good_list = [];
+	  uni.showLoading({title: '数据加载中，请稍后'});
+	  this.getProductList();
     },
   },
 };
