@@ -141,7 +141,7 @@
 							</view>
 						</view>
 						<!--  弹出层-分享微信/朋友圈   -->
-						<view v-if="isPopupShare">
+						<!-- <view v-if="isPopupShare">
 							<view class="popupShareView">
 								<view class="uni-share-content-box">
 									<view class="uni-share-content-item" >
@@ -157,14 +157,14 @@
 									<button class="popup-sub-btn" @click="closePopup">取消</button>
 								</view>
 							</view>
-						</view>
+						</view> -->
 					</uni-popup>
 				</view>
 			</template>
-			<view class="wx-share" :style="{top: (statusBarHeight+50)+'px'}" @click="openShare" v-if="!isPopupShare">
+			<!-- <view class="wx-share" :style="{top: (statusBarHeight+50)+'px'}" @click="openShare" v-if="!isPopupShare">
 				<view class="iconfont icon-fenxiangshangpin"></view>
 				<text>分享</text>
-			</view>
+			</view> -->
 		</view>
 		<view slot="footer" id="footer" ref="footer">
 			<!-- 下部菜单固定栏 -->
@@ -747,7 +747,7 @@ export default {
 		changePopup({ show }) {
 			this.showPopup = show;
 			this.selectType = show ? this.selectType : 0;
-			this.isPopupShare = show;
+			this.isPopupShare = !this.selectType ? false : show;
 		},
 		closePopup() {
 			this.isPopupShare = false
