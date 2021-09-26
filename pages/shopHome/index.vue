@@ -281,17 +281,8 @@ export default {
 			let that = this;
 			const res = getPromotionProduct();
 			res.then(function(e) {
-				// that.promotionList = e.data.data.info;
-				that.promotionList.push({
-						name: '附近1',
-						subtitle: 'fdfdfdfdsfsf',
-						product_promotion_category_image: 'https://admin.dajxyl.com/oss?path=img/169d0183bd474fa31ab04bc758224399.jpg' 
-				})
-				that.promotionList.push({
-						name: '附近的客2',
-						subtitle: 'fdfdfdfdsfsf',
-						product_promotion_category_image: 'https://admin.dajxyl.com/oss?path=img/169d0183bd474fa31ab04bc758224399.jpg' 
-				})
+				that.promotionList = [...e.data.data.info,...e.data.data.info];
+			
 			});
 		},
 		/*获取首页轮播图列表数据*/
@@ -316,7 +307,7 @@ export default {
 		getCategoryLists() {
 			getCategoryList(1, 1000).then(res => {
 				const { info } = res.data.data;
-				this.category_list = info;
+				this.category_list = [...info,...info,...info,...info]
 				// this.category_list = [
 				//   { value: '', label: '全部' },
 				//   ...info.map(({ id: value , name: label }) => ({ value, label })),
@@ -794,7 +785,6 @@ scroll-view ::-webkit-scrollbar {
 .rotation {
 	//background-image: url(https://admin.dajxyl.com/oss?path=img/lunbobg@2x_origin.png);
 	width: 100%;
-	height: 337upx;
 	display: flex;
 	justify-content: center;
 	background-size: 100% 60%;

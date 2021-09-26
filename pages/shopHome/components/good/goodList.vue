@@ -1,7 +1,9 @@
 <template>
   <view class="good-list">
     <view class="good-list-img" @click="gotoInfo">
-      <img class="goods-list-sample" :src="goodImg" :alt="goodTitle">
+      <!-- <img class="goods-list-sample" :src="goodImg" :alt="goodTitle"> -->
+	  <image class="goods-list-sample" mode="center" :src="goodImg"
+	                          @error="imageError"></image>
       <template v-if="isPromotion">
         <img class="goods-list-hot" :src="promotion_img" alt="goodTitle">
       </template>

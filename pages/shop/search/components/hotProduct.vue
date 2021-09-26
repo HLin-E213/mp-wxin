@@ -52,7 +52,7 @@ export default {
 		display: flex;
 		flex-wrap: wrap;
 		.list-items {
-			width: calc(50% - 10rpx);
+			width: calc(50% - 20rpx);
 			font-size: 26rpx;
 			color: #666666;
 			line-height: 46rpx;

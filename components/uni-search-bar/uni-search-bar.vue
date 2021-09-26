@@ -2,7 +2,7 @@
 	<view class="uni-searchbar">
 		<view :style="{ borderRadius: radius + 'px', backgroundColor: bgColor }" class="uni-searchbar__box" @click="searchClick">
 			<view class="uni-searchbar__box-icon-search">
-				<slot name="searchIcon"><uni-icons color="#999999" size="18" type="search" /></slot>
+				<slot name="searchIcon"><uni-icons color="#999999;" size="31" type="search" /></slot>
 			</view>
 			<swiper
 				class="swiper"
@@ -15,7 +15,7 @@
 				@click="handleClick"
 				v-if="!show && !searchVal"
 			>
-				<swiper-item v-for="(item, index) in historySearchList" :key="index">
+				<swiper-item v-for="(item, index) in historySearchList" :key="index" style="display: flex;align-items: center;">
 					<text class="uni-searchbar__text-placeholder">{{ item }}</text>
 				</swiper-item>
 			</swiper>
@@ -264,7 +264,7 @@ $uni-searchbar-height: 36px;
 	/* #endif */
 	flex-direction: row;
 	position: relative;
-	padding: $uni-spacing-col-base;
+	padding: 16rpx 16rpx 20rpx 16rpx;
 	// background-color: $uni-bg-color;
 }
 

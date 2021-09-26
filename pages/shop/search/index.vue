@@ -1,6 +1,6 @@
 <template>
 	<layout :title="title" :showFooter="false" footerHeight="0">
-		<view class="container">
+		<view class="container" :style="{backgroundColor:isSearch?'#f8f8f8':'#ffffff'}">
 			<!--  搜索栏    -->
 			<view class="dajx-search-bar">
 				<view class="search-box">
@@ -19,7 +19,7 @@
 						:placeholder="placeholderText"
 						:radius="18"
 					>
-						<uni-icons slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
+						<uni-icons style="display: flex; align-items: center;" slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
 					</uni-search-bar>
 				</view>
 				<view class="dajx-search-btn" @click="search">搜索</view>
@@ -92,7 +92,7 @@
 			</view>
 			<empty-data v-if="isSearch && !good_list.length"></empty-data>
 		</view>
-		<movable direction="all" :num="good_car_num"></movable>
+		<movable direction="all" :num="good_car_num" v-if="isSearch"></movable>
 	</layout>
 </template>
 
@@ -557,6 +557,7 @@ export default {
 .dajx-search-bar {
 	display: flex;
 	align-items: center;
+	background-color: #FFFFFF;
 
 	.search-box {
 		flex: 1;
@@ -576,7 +577,6 @@ export default {
 .goods-list-wrap {
 	display: flex;
 	flex-wrap: wrap;
-	padding-top: 24rpx;
 }
 .fixed-intro {
 	position: fixed;

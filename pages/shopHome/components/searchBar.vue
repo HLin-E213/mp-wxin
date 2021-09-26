@@ -13,7 +13,7 @@
 			:list="historySearchList"
 			@hClick="onClick"
 		>
-			<uni-icons slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
+			<uni-icons style="display: flex; align-items: center;" slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
 		</uni-search-bar>
 	</view>
 </template>

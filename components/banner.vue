@@ -16,10 +16,10 @@
               :style="{height: height}"
           >
             <swiper-item v-for="(i,k) in img_list" :key="k">
-              <image class="preview-img" :src="i && i.img_src" mode="" @click="gotoInfo(i)"></image>
+              <image class="preview-img" :src="i && i.img_src" mode="scaleToFill" @click="gotoInfo(i)"></image>
             </swiper-item>
           </swiper>
-		  <view class="dots-wrap" v-if="indicatorDots">
+		  <view class="dots-wrap" v-if="indicatorDots && img_list.length !== 1">
 		        <block v-for="(imgItem, index) in img_list" :key="imgItem && imgItem.img_src">
 		          <view class="dot" :class="{'dot-active': index === currentSwiper}"></view>
 		        </block>

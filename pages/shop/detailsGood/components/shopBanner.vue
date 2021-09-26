@@ -34,7 +34,7 @@
           <!-- #endif -->
         </swiper-item>
         </swiper>
-        <view class="dots-wrap" v-if="indicatorDots">
+        <view class="dots-wrap" v-if="indicatorDots && img_list.length !== 1">
           <block v-for="(imgItem, index) in img_list" :key="index">
             <view class="dot" :class="{'dot-active': index === currentSwiper}"></view>
           </block>
