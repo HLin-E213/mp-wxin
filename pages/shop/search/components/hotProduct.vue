@@ -39,7 +39,7 @@ export default {
   .tit-box {
     display: flex;
     align-items: center;
-    padding-bottom: 35rpx;
+    padding-bottom: 30rpx;
     .tit {
       font-size: 30rpx;
       color: #333333;

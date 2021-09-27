@@ -8,6 +8,7 @@
           <view class="category-box"
                 :class="[promotionList.length > 1?'boc':'', promotionList.length != 1? `item-${i}` : '']"
                 v-for="(e, i) in item" :key="i"
+				:style="{width: (screenWidth/2-5) + 'px'}"
                 @click="gotoInfo(e)">
             <view class="act-title" >
               <view class="tit-right">
@@ -67,16 +68,15 @@ export default {
   },
   created(){
     const that = this
-    uni.getSystemInfo({
-      success: function (res) {
-        that.screenWidth = res.screenWidth
-      }
-    });
    if(this.promotionList.length > 2){
      that.timer = setInterval(()=>{
        that.moveTo()
-     }, 1000)
-   }
+     }, 5000)
+   }//
+   const query = uni.createSelectorQuery().in(this);
+               query.select('.nav-bar-wrap').boundingClientRect(data => {
+                   that.screenWidth = data.width
+               }).exec();
   },
   methods: {
     scrolltoupper(){
@@ -86,7 +86,7 @@ export default {
       this.idx = 0
     },
     moveTo() {
-      this.scrollLeft = (this.screenWidth/2-14) * this.idx
+      this.scrollLeft = (this.screenWidth/2) * this.idx
       this.idx++
     },
     gotoInfo(obj) {
@@ -112,13 +112,14 @@ scroll-view {
   color:transparent;
 }
 .nav-bar-wrap {
+	width: 100%;
   display: flex;
   height: 292rpx;
 }
 
 .activity {
   margin: 16rpx;
-  padding: 26rpx;
+  padding: 26rpx 21rpx 26rpx 26rpx;
   background-color: #ffecec;
   border-radius: 10rpx;
 
@@ -127,13 +128,13 @@ scroll-view {
     height: 100%;
   }
 }
-.item-1{
-  width: 50%!important;
+.item-0{
+  // width: 50%!important;
+  // margin-right: 10px;
 }
 .category-box {
   //width: 100%;
   height: 100%;
-  margin-right: 13rpx;
   .act-title {
     .tit-right {
       display: flex;
@@ -154,7 +155,7 @@ scroll-view {
         line-height: 38rpx;
         color: #ffffff;
         text-align: center;
-        padding: 0 9rpx;
+        padding: 0 0 0 9rpx;
         background: #fd7c09;
         font-size: 24rpx;
         border-radius: 20rpx 0 20rpx 0;
@@ -168,7 +169,8 @@ scroll-view {
 
 }
 .boc {
-  width: calc(50% - 13rpx);
+  // width: calc(50% - 13rpx);
+  margin-right: 5px;
 }
 .preview-img {
   width: 100%;

@@ -1,31 +1,23 @@
 <template>
-  <view class="history-main">
-    <view class="tit-btn-box">
-      <text class="tit">历史搜索</text>
-      <view class="del-btn" @click="clearAll">
-        <uni-icons type="trash" size="15" color="#666666"></uni-icons>
-        <text>删除</text>
+
+  <view :class="{'history-content':true,'history-hide':!showMore}" v-if="historySearchList.length">
+	  <view class="tit-btn-box">
+	  			<text class="tit">历史搜索</text>
+	  			<view class="del-btn" @click="clearAll">
+	  				<uni-icons type="trash" size="15" color="#666666"></uni-icons>
+	  				<text>删除</text>
+	  			</view>
+	  	</view>
+        <view class="van-ellipsis" v-for="(item, index) in historySearchList" :key="index" @click="toGoods(item)">{{ item }}</view>
+        <view class="icon-more" v-if="!showMore && hasMoreBtn" @click="toChange">
+			<uni-icons type="arrowdown" size="12" color="#666666"></uni-icons>
+		</view>
+        <view class="icon-more" v-if="showMore && hasMoreBtn" @click="toChange">
+			<uni-icons type="arrowup" size="12" color="#666666"></uni-icons>
+		</view>
       </view>
-    </view>
-    <view class="items-container">
-      <view class="on history-item">
-        <view class="items-boxs" v-for="(item, index) in historySearchList" :key="index">
-          <view class="h-item-list">
-            <view class="con-btn" @click="toGoods(item)">{{ item }}</view>
-          </view>
-        </view>
-        <view
-            :style="!showMore ? 'position: absolute; right: 0; bottom: 0':''"
-            class="more-btn"
-            @tap="toChange"
-            v-show="newHeight > 226"
-        >
-          <uni-icons type="arrowdown" size="12" color="#666666" v-if="!showMore"></uni-icons>
-          <uni-icons type="arrowup" size="12" color="#666666" v-if="showMore"></uni-icons>
-        </view>
-      </view>
-    </view>
-  </view>
+
+  
 </template>
 
 <script>
@@ -45,9 +37,6 @@ export default {
     return {
       showMore: false,
       hasMoreBtn: false,
-      count: 0,
-      newHeight: 0,
-      oldHeight: 0,
       historySearchList: []
     };
   },
@@ -59,34 +48,40 @@ export default {
       immediate: true
     }
   },
-  onLoad(){
-
-  },
   mounted() {
-    let query = uni.createSelectorQuery().in(this);
-    debugger
-    // 获取所有文本在html中的高度
-    let doms = query.selectAll('.items-boxs')
-    console.log('*', doms)
+	  this.toggleItems()
+					 
   },
   methods: {
-    getHeight(height) {
-      console.log('height', height)
-      this.newHeight = height
-      // if (height > 130) {
-      //   this.newHeight = 226;
-      // } else {
-      //   this.newHeight = height;
-      // }
-      // this.oldHeight = height;
-      // console.log(this.newHeight, this.oldHeight)
-    },
+	  toggleItems(){
+		  let count = 0;
+		   let idx = 0;
+		  const query = uni.createSelectorQuery().in(this);
+		             query.selectAll('.van-ellipsis').fields({
+		  						 rect:true,
+		  						 size: true
+		  					 }, data => {
+		                      data.forEach((i, index) => {
+		                                if (i.left === 10) {
+		                                  count++
+		                                  if (count === 4) {
+		                                    idx = index - 1
+		                                    this.hasMoreBtn = true
+		                                  }
+		                                }
+		  								   
+		  								   
+		  								})
+		  								this.historySearchList = []
+		  								if (idx > 0) {								
+		  								          this.historySearchList= this.list.slice(0, idx)
+		  								        } else {
+		  								          this.historySearchList=this.list
+		  								       }
+		                  }).exec();
+	  },
     toChange() {
-      if (this.showMore) {
-        this.newHeight = 226;
-      } else {
-        this.newHeight = 0;
-      }
+	  this.toggleItems()
       this.showMore = !this.showMore;
     },
     //清空历史记录
@@ -101,84 +96,66 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.history-main {
-  padding: 0 20rpx;
-  .tit-btn-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .tit {
-      font-size: 30rpx;
-      color: #333333;
-    }
-    .del-btn {
-      color: #666666;
-      display: flex;
-      align-items: center;
-      text {
-        font-size: 26rpx;
-        margin-top: 10rpx;
-      }
-    }
-  }
-}
-.items-container {
-  padding-top: 35rpx;
-}
-.history-item {
-  display: flex;
-  //justify-content: flex-start;
-  //align-items: center;
-  flex-wrap: wrap;
-  overflow: hidden;
-  position: relative;
-}
-.on {
-  //height: auto;
+	.history-content{
+		padding: 0 10px;
+		transition: height 0.3s;
+	}
+.tit-btn-box {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding-bottom: 30rpx;
+		.tit {
+			font-size: 30rpx;
+			color: #333333;
+		}
+		.del-btn {
+			color: #666666;
+			display: flex;
+			align-items: center;
+			text {
+				font-size: 26rpx;
+				margin-top: 10rpx;
+			}
+		}
+	}
+.van-ellipsis{
+	    display: inline-block;
+	    align-items: center;
+	    border-radius: 26rpx;
+	    box-sizing: border-box;
+	    height: 52rpx;
+	    line-height: 52rpx;
+	    margin-bottom: 20rpx;
+	    text-align: center;
+	    padding: 0 20rpx;
+	    font-size:24rpx;
+	    color: #666;
+	    background-color: #f8f8f8;
+	    margin-right: 20rpx;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	    white-space: nowrap;
+	    max-width: 100%;
+
 }
 
-.con-btn {
-  font-size: 26rpx;
-  color: #666666;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.h-item-list {
-  height: 52rpx;
-  line-height: 52rpx;
-  margin-right: 20rpx;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-content: center;
-  margin-bottom: 32rpx;
-  display: -webkit-box; /** 对象作为伸缩盒子模型显示 **/
-  overflow: hidden;
-  word-break: break-all; /* break-all(允许在单词内换行。) */
-  text-overflow: ellipsis; /* 超出部分省略号 */
-  -webkit-box-orient: vertical; /** 设置或检索伸缩盒对象的子元素的排列方式 **/
-  -webkit-line-clamp: 3; /** 显示的行数 **/
-  background-color: #f8f8f8;
-  border-radius: 26rpx;
-  padding: 2rpx 20rpx;
-}
-.tl-mgs {
-  display: flex;
-  justify-content: center;
-  align-content: center;
-}
-.tl-img-16 {
-  width: 24rpx;
-  height: 24rpx;
-  vertical-align: middle;
-}
-.more-btn {
-  width: 52rpx;
-  height: 52rpx;
-  line-height: 52rpx;
-  text-align: center;
-  border-radius: 50%;
-  background-color: #f8f8f8;
+.icon-more{
+	display: inline-block;
+	align-items: center;
+	border-radius: 26rpx;
+	box-sizing: border-box;
+	height: 52rpx;
+	width: 52rpx;
+	line-height: 52rpx;
+	margin-bottom: 20rpx;
+	text-align: center;
+	padding: 0 10rpx;
+	font-size:24rpx;
+	color: #666;
+	background-color: #f8f8f8;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 </style>
