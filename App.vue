@@ -13,6 +13,7 @@ export default {
     console.log('App Launch');
     // getLieAuth();
     // getNetwork();
+    // this.getUserInfo();
   },
   computed: {
     ...mapState(['codeInvitation'])

@@ -1,29 +1,32 @@
 <template>
   <view class="activity">
-    <scroll-view class="nav-bar" scroll-x @scroll="scroll" @scrolltoupper="scrolltoupper" @scrolltolower="scrolltoupper">
+    <scroll-view class="nav-bar" scroll-x scroll-with-animation @scrolltoupper="scrolltoupper" :scroll-left='scrollLeft' @scrolltolower="scrolltolower">
       <!-- 使用flex布局实现横向滚动，在scroll-view里加一层容器包裹，才会出现滚动效果 -->
       <view class="nav-bar-wrap"
-       style="flex-flow:column wrap">
+            style="flex-flow:column wrap">
         <block v-for="(item, index) in lists" :key="index">
-            <view class="category-box" :class="[promotionList.length > 1?'boc':'', promotionList.length != 1? `item-${i}` : '']" v-for="(e, i) in item" :key="i" @click="gotoInfo(e)">
-              <view class="act-title" >
-                <view class="tit-right">
-                  <view class="act-tit">{{ e.name }}</view>
-                  <view class="price-intro">{{ e.subtitle }}</view>
-                </view>
-              </view>
-              <view class="preview-img">
-                <image
-                    class="preview-img"
-                    :src="e && e.product_promotion_category_image"
-                    mode=""
-                    v-if="e && e.product_promotion_category_image"
-                ></image>
+          <view class="category-box"
+                :class="[promotionList.length > 1?'boc':'', promotionList.length != 1? `item-${i}` : '']"
+                v-for="(e, i) in item" :key="i"
+                @click="gotoInfo(e)">
+            <view class="act-title" >
+              <view class="tit-right">
+                <view class="act-tit">{{ e.name }}</view>
+                <view class="price-intro">{{ e.subtitle }}</view>
               </view>
             </view>
+            <view class="preview-img">
+              <image
+                  class="preview-img"
+                  :src="e && e.product_promotion_category_image"
+                  mode="aspectFill"
+                  v-if="e && e.product_promotion_category_image"
+              ></image>
+            </view>
+          </view>
         </block>
       </view>
-     </scroll-view>
+    </scroll-view>
   </view>
 </template>
 
@@ -38,8 +41,10 @@ export default {
   },
   data() {
     return {
-      left: 0,
-	  idx: 0,
+      scrollLeft: 0,
+      screenWidth: 0,
+      idx: 1,
+      timer: null
     };
   },
   computed: {
@@ -60,12 +65,37 @@ export default {
       return arr2;
     }
   },
+  created(){
+    const that = this
+    uni.getSystemInfo({
+      success: function (res) {
+        that.screenWidth = res.screenWidth
+      }
+    });
+   if(this.promotionList.length > 2){
+     that.timer = setInterval(()=>{
+       that.moveTo()
+     }, 1000)
+   }
+  },
   methods: {
-		scrolltoupper(){},
-		scrolltolower(){},
+    scrolltoupper(){
+      this.idx = 1
+    },
+    scrolltolower(){
+      this.idx = 0
+    },
+    moveTo() {
+      this.scrollLeft = (this.screenWidth/2-14) * this.idx
+      this.idx++
+    },
     gotoInfo(obj) {
       this.$emit('toCategoty', obj);
     }
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
+    this.timer = null;
   }
 };
 </script>
@@ -86,13 +116,6 @@ scroll-view {
   height: 292rpx;
 }
 
-.nav-bar-item {
-  
-}
-	
-	
-	
-	
 .activity {
   margin: 16rpx;
   padding: 26rpx;
@@ -104,10 +127,11 @@ scroll-view {
     height: 100%;
   }
 }
-.item-0{
+.item-1{
+  width: 50%!important;
 }
 .category-box {
-  width: 100%;
+  //width: 100%;
   height: 100%;
   margin-right: 13rpx;
   .act-title {
@@ -116,6 +140,7 @@ scroll-view {
       align-items: center;
       justify-content: start;
       margin-bottom: 20rpx;
+      padding-left: 2rpx;
       .act-tit{
         white-space: nowrap;
         overflow: hidden;
@@ -125,8 +150,8 @@ scroll-view {
       .price-intro {
         max-width: 270rpx;
         min-width: 100rpx;
-		height: 38rpx;
-		line-height: 38rpx;
+        height: 38rpx;
+        line-height: 38rpx;
         color: #ffffff;
         text-align: center;
         padding: 0 9rpx;
@@ -143,7 +168,7 @@ scroll-view {
 
 }
 .boc {
-  width: 50%;
+  width: calc(50% - 13rpx);
 }
 .preview-img {
   width: 100%;

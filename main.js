@@ -9,6 +9,9 @@ Vue.config.productionTip = false
 
 Vue.prototype.$store = store
 
+
+
+
 Vue.prototype.$isIPX = ISIPX;
 Vue.prototype.$isNotchScreen = ISNOTCHSCREEN;
 

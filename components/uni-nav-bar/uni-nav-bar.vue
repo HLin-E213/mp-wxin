@@ -147,7 +147,7 @@
 						url:'/pages/main/main'
 					})
 				}else {
-				  // 加了一层是否正常返回验证
+				  // 加了一层是否正常返回, 简单切换状态
 				  if(this.isNoLeft){
             const pagesStack = getCurrentPages(); // 获取页面栈
             if (pagesStack.length > 1) return uni.navigateBack({

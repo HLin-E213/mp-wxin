@@ -363,6 +363,7 @@
       "path": "pages/shopHome/index",
       "style": {
         "navigationBarTitleText": "商城",
+        "navigationBarTextStyle": "black",
         "enablePullDownRefresh": false
       }
     }
@@ -436,6 +437,7 @@
         "path": "search/index",
         "style": {
           "navigationBarTitleText": "搜索",
+          "navigationBarTextStyle": "black",
           "enablePullDownRefresh": false
         }
       }
