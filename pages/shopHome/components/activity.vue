@@ -1,6 +1,7 @@
 <template>
   <view class="activity">
-    <scroll-view class="nav-bar" scroll-x scroll-with-animation @scrolltoupper="scrolltoupper" :scroll-left='scrollLeft' @scrolltolower="scrolltolower">
+    <scroll-view class="nav-bar" @scroll="scroll" :scroll-into-view="intoindex" scroll-x :scroll-with-animation="promotionList.length - idx > 1" @scrolltoupper="scrolltoupper" :scroll-left='scrollLeft'
+                 @scrolltolower="scrolltolower">
       <!-- 使用flex布局实现横向滚动，在scroll-view里加一层容器包裹，才会出现滚动效果 -->
       <view class="nav-bar-wrap"
             style="flex-flow:column wrap">
@@ -8,11 +9,12 @@
           <view class="category-box"
                 :class="[promotionList.length > 1?'boc':'', promotionList.length != 1? `item-${i}` : '']"
                 v-for="(e, i) in item" :key="i"
-				:style="{width: (screenWidth/2-5) + 'px'}"
+                :style="{width: (screenWidth/2-5) + 'px'}"
+                :id="'item-'+index+'-'+i"
                 @click="gotoInfo(e)">
-            <view class="act-title" >
+            <view class="act-title">
               <view class="tit-right">
-                <view class="act-tit">{{ e.name }}</view>
+                <view class="act-tit">{{ e.name }}-{{index}}{{i}}</view>
                 <view class="price-intro">{{ e.subtitle }}</view>
               </view>
             </view>
@@ -45,7 +47,8 @@ export default {
       scrollLeft: 0,
       screenWidth: 0,
       idx: 1,
-      timer: null
+      timer: null,
+      intoindex: ''
     };
   },
   computed: {
@@ -66,27 +69,41 @@ export default {
       return arr2;
     }
   },
-  created(){
+  created() {
     const that = this
-   if(this.promotionList.length > 2){
-     that.timer = setInterval(()=>{
-       that.moveTo()
-     }, 5000)
-   }//
-   const query = uni.createSelectorQuery().in(this);
-               query.select('.nav-bar-wrap').boundingClientRect(data => {
-                   that.screenWidth = data.width
-               }).exec();
+    const query = uni.createSelectorQuery().in(this);
+    query.select('.nav-bar-wrap').boundingClientRect(data => {
+      that.screenWidth = data.width
+    }).exec();
+    // that.interval()
   },
   methods: {
-    scrolltoupper(){
-      this.idx = 1
+    scroll(event){
+      console.log(event)
+      // this.$nextTick(()=> {
+        this.intoindex = 'item-2-0'
+        // console.log(this.intoindex)
+      // });
+      // this.intoindex=''
     },
-    scrolltolower(){
-      this.idx = 0
+    scrolltoupper() {
+      // this.idx = 1
     },
-    moveTo() {
-      this.scrollLeft = (this.screenWidth/2) * this.idx
+    scrolltolower() {
+      // console.log( this.promotionList.length,this.idx)
+      // this.idx = -1
+      // this.scrollLeft = 0
+    },
+    interval(){
+      const that = this
+      if (this.promotionList.length > 2) {
+        that.timer = setInterval(() => {
+          that.moveTo()
+        }, 5000)
+      }
+    },
+    moveTo(){
+      this.scrollLeft = (this.screenWidth / 2) * this.idx
       this.idx++
     },
     gotoInfo(obj) {
@@ -104,21 +121,23 @@ export default {
 scroll-view {
   white-space: nowrap;
 }
+
 /* 去除滚动条 */
 ::-webkit-scrollbar {
-  display:none;
-  width:0;
-  height:0;
-  color:transparent;
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
 }
+
 .nav-bar-wrap {
-	width: 100%;
+  width: 100%;
   display: flex;
   height: 292rpx;
 }
 
 .activity {
-  margin: 16rpx;
+  margin: 20rpx 20rpx 0 20rpx;
   padding: 26rpx 21rpx 26rpx 26rpx;
   background-color: #ffecec;
   border-radius: 10rpx;
@@ -128,13 +147,16 @@ scroll-view {
     height: 100%;
   }
 }
-.item-0{
+
+.item-0 {
   // width: 50%!important;
   // margin-right: 10px;
 }
+
 .category-box {
   //width: 100%;
   height: 100%;
+
   .act-title {
     .tit-right {
       display: flex;
@@ -142,20 +164,23 @@ scroll-view {
       justify-content: start;
       margin-bottom: 20rpx;
       padding-left: 2rpx;
-      .act-tit{
+
+      .act-tit {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 26rpx;
+        font-size: 34rpx;
+        color: #333333;
       }
+
       .price-intro {
-        max-width: 270rpx;
-        min-width: 100rpx;
+        //max-width: 270rpx;
+        //min-width: 120rpx;
         height: 38rpx;
         line-height: 38rpx;
         color: #ffffff;
-        text-align: center;
-        padding: 0 0 0 9rpx;
+        text-align: left;
+        padding: 0 9rpx;
         background: #fd7c09;
         font-size: 24rpx;
         border-radius: 20rpx 0 20rpx 0;
@@ -168,10 +193,12 @@ scroll-view {
   }
 
 }
+
 .boc {
   // width: calc(50% - 13rpx);
   margin-right: 5px;
 }
+
 .preview-img {
   width: 100%;
   height: 220rpx;
