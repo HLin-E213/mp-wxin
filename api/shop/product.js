@@ -9,13 +9,14 @@ import { dajxHttp } from '../../utils/request.js';
  * @param page
  * @returns {Promise<any>}
  */
-export async function getProductList(is_recommend = false, product_category_id = '', keyword_search = '' , pageSize = 10, page = 1) {
+export async function getProductList(is_recommend = false, product_category_id = '', keyword_search = '', product_promotion_category_id='' , pageSize = 10, page = 1) {
     return await dajxHttp.post({
         url: '/api/product/list',
         data: {
             is_recommend,
             product_category_id,
             keyword_search,
+            product_promotion_category_id,
             pageSize,
             page
         },

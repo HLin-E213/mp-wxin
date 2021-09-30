@@ -184,7 +184,7 @@ export default {
     position: absolute;
     top: 30rpx;
     right: 30rpx;
-    z-index: 9999;
+    z-index: 90;
     .iconfont {
       margin-right: 10rpx;
     }

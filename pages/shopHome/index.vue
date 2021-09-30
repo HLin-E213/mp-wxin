@@ -1,9 +1,8 @@
 <template>
   <view class="show-home">
-    <uni-nav-bar :title="title" :statusBar="true" :showBcakImg="showBcakImg" :showFooter="false" :isNoLeft="false"
-                 footerHeight="0" @clickLeft="clickLeft"></uni-nav-bar>
+    <uni-nav-bar :title="title" :showBcakImg="showBcakImg" :showFooter="false" :isNoLeft="false" footerHeight="0" @clickLeft="clickLeft"></uni-nav-bar>
     <view class="content">
-      <!--    <view class="fixed-intro">
+      <!--		<view class="fixed-intro">
               <scroll-view scroll-x="true" class="tab-bar-wrap" :scroll-into-view="viewId">
                 <block v-for="(i,k) in category_list"  :key="k">
                   <view
@@ -17,25 +16,20 @@
           </view>-->
 
       <!--  搜索栏    -->
-      <view class="search-box">
-        <searchBar v-if="!isFocus"></searchBar>
+      <view class="search-box"><searchBar v-if="!isFocus"></searchBar></view>
+      <view v-show="hasMore">
+        <uni-load-more :status="loadStatus" ></uni-load-more>
       </view>
       <view class="totation-box" v-if="!isCategory">
         <!--  轮播图  -->
         <view class="rotation" :class="{ 'rotation-ns': isNotchScreen }">
-          <view class="banner">
-            <Banner :ids="ids" height="246" :img_list="img_list"></Banner>
-          </view>
+          <view class="banner"><Banner :ids="ids" :img_list="img_list"></Banner></view>
         </view>
         <!-- 分类轮播 -->
-        <view>
-          <categoryRotation :list="category_list" @categoryClick="handleClickCategory"></categoryRotation>
-        </view>
+        <view><categoryRotation :list="category_list" @categoryClick="handleClickCategory"></categoryRotation></view>
       </view>
       <!--   活动   -->
-      <view v-if="!isCategory && promotionList.length">
-        <active :promotion-list="promotionList" @toCategoty="handleClickCategory"></active>
-      </view>
+      <view v-if="!isCategory && promotionList.length"><active :promotion-list="promotionList" @toCategoty="toActivity"></active></view>
       <view v-if="good_list.length">
         <view class="goods-list-wrap">
           <good-list
@@ -57,15 +51,11 @@
               <view class="popupView">
                 <view>
                   <view class="popupSkuView">
-                    <view class="popupClose" @click="cancelSelectSpec"><img
-                        src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭"/></view>
+                    <view class="popupClose" @click="cancelSelectSpec"><img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭" /></view>
                     <view class="popupSkuView-good">
-                      <view class="popupSkuView-good-img-view"><img class="popupSkuView-good-img"
-                                                                    :src="sku_img[0] && sku_img[0].img_src" alt=""/>
-                      </view>
+                      <view class="popupSkuView-good-img-view"><image class="popupSkuView-good-img" mode="aspectFill" :src="sku_img[0] && sku_img[0].img_src"></image></view>
                       <view class="popupSkuView-good-desc">
-                        <h1 class="popupSkuView-good-desc-title">
-                          {{ good_name.length > 10 ? good_name.slice(0, 10) + '...' : good_name }}</h1>
+                        <h1 class="popupSkuView-good-desc-title">{{ good_name.length > 10 ? good_name.slice(0, 10) + '...' : good_name }}</h1>
                         <p class="popupSkuView-good-desc-money">
                           ￥{{ skuPrice[0] }}.
                           <span class="popupSkuView-good-desc-money-s">{{ skuPrice[1] }}</span>
@@ -77,8 +67,7 @@
                         <h1 class="popupSkuView-list-item-h1">{{ sku.title }}</h1>
                         <view class="popupSkuView-list-item-button">
                           <template v-for="skuV in sku.productSpecValue">
-                            <button @click="selectSpec(sku, skuV)"
-                                    :class="{ active: select_spec_id.includes(Number(skuV.id)) }">
+                            <button @click="selectSpec(sku, skuV)" :class="{ active: select_spec_id.includes(Number(skuV.id)) }">
                               {{ skuV.value }}
                             </button>
                           </template>
@@ -88,25 +77,22 @@
                     <view class="popupSkuView-num">
                       <h1 class="popupSkuView-list-item-h1-num">数量</h1>
                       <view class="popupSkuView-item-num">
-                        <img class="num-button" @click="subGoodNum"
-                             src="https://admin.dajxyl.com/oss?path=img/reduce@2x.png" alt="-"/>
+                        <img class="num-button" @click="subGoodNum" src="https://admin.dajxyl.com/oss?path=img/reduce@2x.png" alt="-" />
                         <p>{{ good_num }}</p>
-                        <img class="num-button" @click="addGoodNum"
-                             src="https://admin.dajxyl.com/oss?path=img/add@2x.png" alt="+"/>
+                        <img class="num-button" @click="addGoodNum" src="https://admin.dajxyl.com/oss?path=img/add@2x.png" alt="+" />
                       </view>
                     </view>
-                    <view class="popupSkuView-sub">
-                      <button class="popupSkuView-sub-btn" @click.stop="ensureSelectSpec">确认</button>
-                    </view>
+                    <view class="popupSkuView-sub"><button class="popupSkuView-sub-btn" @click.stop="ensureSelectSpec">确认</button></view>
                   </view>
                 </view>
               </view>
             </uni-popup>
           </view>
         </template>
-        <view class="bottom_bottom">———— 我也是有底线的 ————</view>
+        <view class="bottom_bottom" v-if="isEnd">———— 我也是有底线的 ————</view>
       </view>
       <empty-data v-if="isCategory && !good_list.length"></empty-data>
+<!--      <movable direction="all" :num="good_car_num"></movable>-->
     </view>
 
     <movable direction="all" :num="good_car_num"></movable>
@@ -116,38 +102,43 @@
 <script>
 // import dayjs from 'dayjs';
 import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue';
-import layout from '@/components/layout/index.vue';
+// import layout from '@/components/layout/index.vue';
 import movable from '@/components/movableArea/index.vue';
 import goodList from './components/good/goodList.vue';
-import {getProductInfo, getProductList, getProductSKU, getPromotionProduct} from '../../api/shop/product';
-import {addCart, getCartCount} from '../../api/shop/cart';
-import {getCategoryList} from '../../api';
-import {fenToYuan} from '@/utils/money';
+import { getProductInfo, getProductList, getProductSKU, getPromotionProduct } from '../../api/shop/product';
+import { addCart, getCartCount } from '../../api/shop/cart';
+import { getCategoryList } from '../../api';
+import { fenToYuan } from '@/utils/money';
 import searchBar from './components/searchBar';
 import Banner from '../../components/banner.vue';
 import categoryRotation from './components/categoryRotation';
 import active from './components/activity';
-import {rotationPicture} from '@/api/index.js';
+import { rotationPicture } from '@/api/index.js';
 import emptyData from './components/empty-data';
+import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
 
 export default {
   name: 'shop',
   components: {
     uniNavBar,
-    layout,
+    // layout,
     movable,
     goodList,
     searchBar,
     Banner,
     categoryRotation,
     active,
-    emptyData
+    emptyData,
+    uniLoadMore
   },
   data() {
-    const {isNotchScreen} = getApp().globalData;
+    const { isNotchScreen } = getApp().globalData;
     return {
       title: '养老商城',
       showBcakImg: false,
+      isEnd: false,
+      loadStatus: 'loading',
+      hasMore: false,
       // 顶部背景图
       // showBackGroundImg: 'https://admin.dajxyl.com/oss?path=img/wodebg1@2x.png',
       // 商品列表
@@ -161,7 +152,7 @@ export default {
       good_car_num: 0,
       // 弹层控制
       showPopup: false,
-      sku_img: [{img_src: ''}, {img_src: ''}],
+      sku_img: [{ img_src: '' }, { img_src: '' }],
       // 价格
       money: 0,
       // 原价
@@ -214,12 +205,13 @@ export default {
       isFocus: false, // 是否获取焦点
       isCategory: false, // 是否是分类搜索
       keyword: '', // 关键词
-      promotionList: [] // 活动列表
+      promotionList: [], // 活动列表
+      product_promotion_category_id: ''
     };
   },
   computed: {
     skuPrice() {
-      const {price = 0} = this.selectSKU;
+      const { price = 0 } = this.selectSKU;
       if (this.promotingSku) {
         return this.promotingMoney.split('.');
       }
@@ -227,14 +219,14 @@ export default {
     },
     select_spec_id() {
       const selectArr = [];
-      const {product_spec = []} = this.selectSKU;
+      const { product_spec = [] } = this.selectSKU;
       product_spec.forEach(spec => {
         selectArr.push(spec.product_spec_value.id);
       });
       return selectArr;
     },
     price() {
-      return function ({productSkuByMinPrice, productPromotion}) {
+      return function({ productSkuByMinPrice, productPromotion }) {
         if (productPromotion !== null) {
           let money = null;
           productPromotion.productPromotionSku.forEach(i => {
@@ -255,7 +247,7 @@ export default {
       };
     },
     isPromotion() {
-      return function (obj) {
+      return function(obj) {
         if (obj.productPromotion !== null) {
           return true;
         }
@@ -284,56 +276,63 @@ export default {
   },
   onReachBottom() {
     if (this.page < this.totalPage) {
+      this.isEnd = false
       this.page++;
+      // uni.showLoading({ title: '数据加载中，请稍后' });
       this.getProductList();
+    }else{
+      this.isEnd = true
     }
   },
   onPullDownRefresh() {
     this.page = 1;
     this.pageSize = 10;
+    this.hasMore = true
+    this.loadStatus = 'loading'
     this.getProductList();
   },
   methods: {
     // 获取活动商品列表
-    getPromotionProduct: function () {
+    getPromotionProduct: function() {
       let that = this;
       const res = getPromotionProduct();
-      res.then(function (e) {
+      res.then(function(e) {
         that.promotionList = e.data.data.info;
       });
     },
     /*获取首页轮播图列表数据*/
-    get_rotation: function () {
+    get_rotation: function() {
       let that = this;
       let res = rotationPicture(22);
-      res.then(function (e) {
+      res.then(function(e) {
         that.img_list = e.data.data.info;
       });
     },
     handleClickCategory(category = {}) {
       this.showBcakImg = true;
       this.isCategory = true;
+      this.product_promotion_category_id = ''
       this.categoryId = category.id;
       this.title = category.name;
       this.page = 1;
       this.pageSize = 10;
       this.good_list = [];
-      uni.showLoading({title: '数据加载中，请稍后'});
+      // uni.showLoading({ title: '数据加载中，请稍后' });
       this.getProductList();
     },
     getCategoryLists() {
       getCategoryList(1, 1000).then(res => {
-        const {info} = res.data.data;
-        this.category_list = info
-
+        const { info } = res.data.data;
+        this.category_list = info;
         // this.category_list = [
         //   { value: '', label: '全部' },
         //   ...info.map(({ id: value , name: label }) => ({ value, label })),
         // ]
       });
     },
-    getProductList: function () {
-      const ret = getProductList(false, this.categoryId, this.keyword, this.pageSize, this.page);
+    getProductList: function() {
+      let that = this
+      const ret = getProductList(false, this.categoryId, this.keyword, this.product_promotion_category_id, this.pageSize, this.page);
       ret.then(value => {
         this.totalPage = value.data.data.totalPage;
         if (this.page === 1) {
@@ -341,12 +340,13 @@ export default {
         } else {
           this.good_list.push(...value.data.data.info);
         }
-      }).finally(function () {
+      }).finally(function() {
+        that.hasMore = false
         uni.hideLoading();
         uni.stopPullDownRefresh();
       });
     },
-    getCartCount: function () {
+    getCartCount: function() {
       const token = uni.getStorageSync('token');
       if (token) {
         const ret = getCartCount();
@@ -357,7 +357,7 @@ export default {
         this.good_car_num = 0;
       }
     },
-    getProductInfo: function (id) {
+    getProductInfo: function(id) {
       const ret = getProductInfo(id);
       ret.then(value => {
         this.sku_img = [];
@@ -369,11 +369,11 @@ export default {
         value.data.data.info.productImages.forEach((i, k) => {
           // sku 图
           if (i.type === '1') {
-            this.sku_img.push({img_src: i.url});
+            this.sku_img.push({ img_src: i.url });
           }
           // 轮播图
           if (i.type === '2') {
-            this.img_list.push({img_src: i.url});
+            this.img_list.push({ img_src: i.url });
           }
           // 商品介绍图
           if (i.type === '3') {
@@ -388,7 +388,7 @@ export default {
         // 优惠券
         if (value.data.data.info.coupon_list.length > 0) {
           this.coupon = '领取优惠券';
-          this.coupon_list = value.data.data.info.coupon_list.map(item => ({...item, code: item.id}));
+          this.coupon_list = value.data.data.info.coupon_list.map(item => ({ ...item, code: item.id }));
           this.coupon_text = value.data.data.info.coupon_text;
         }
         // 默认选中最小的sku
@@ -409,7 +409,7 @@ export default {
         });
       });
     },
-    openSku: function (item) {
+    openSku: function(item) {
       this.$refs.popup.open();
       // 打开规格选择时候，记录住之前选中的sku以及数量,方便取消时候回填处理
       this.getProductInfo(item.id);
@@ -423,7 +423,7 @@ export default {
       this.addCartShop();
       this.closePopup();
     },
-    addCartShop: function () {
+    addCartShop: function() {
       const cart = addCart(this.selectSKU.id, this.good_num);
       uni.showLoading({
         title: '正在添加到购物车...'
@@ -440,7 +440,7 @@ export default {
       });
     },
     dealPromotionInfo() {
-      const {productPromotionSku = []} = this.productPromotion || {};
+      const { productPromotionSku = [] } = this.productPromotion || {};
       const promotingSku = productPromotionSku.find(sku => String(sku.product_sku_id) === String(this.selectSKU.id));
       this.promotingSku = promotingSku ? true : false;
       if (promotingSku) {
@@ -476,7 +476,7 @@ export default {
       this.beforeGoodNum = null;
       this.closePopup();
     },
-    changePopup({show}) {
+    changePopup({ show }) {
       this.showPopup = show;
     },
     closePopup() {
@@ -490,11 +490,11 @@ export default {
      * */
     selectSpec(sku, skuv) {
       let bool = false;
-      const {product_spec} = this.selectSKU;
-      const {title} = sku;
+      const { product_spec } = this.selectSKU;
+      const { title } = sku;
       let speckeySpecv = '';
       product_spec.forEach(spec => {
-        let temp = {...spec};
+        let temp = { ...spec };
         if (temp.product_spec_key.title === title) {
           temp.product_spec_value = skuv;
         }
@@ -502,7 +502,7 @@ export default {
         speckeySpecv += `${temp.product_spec_key.id}-${temp.product_spec_value.id}`;
       });
       this.productSku.forEach(product => {
-        const {product_spec} = product;
+        const { product_spec } = product;
         let tempSpeckeySpecv = '';
         product_spec.forEach(spec => {
           tempSpeckeySpecv += `${spec.product_spec_key.id}-${spec.product_spec_value.id}`;
@@ -516,7 +516,7 @@ export default {
           }
         }
       });
-      const {productPromotionSku = []} = this.productPromotion || {};
+      const { productPromotionSku = [] } = this.productPromotion || {};
       const promotingSku = productPromotionSku.find(sku => sku.product_sku_id === this.selectSKU.id);
       this.promotingSku = promotingSku ? true : false;
       if (promotingSku) {
@@ -552,7 +552,19 @@ export default {
       this.pageSize = 10;
       this.good_list = [];
       this.getProductList();
-    }
+    },
+    // 活动商品搜索
+    toActivity(obj){
+      this.showBcakImg = true;
+      this.isCategory = true;
+      this.product_promotion_category_id = obj.id;
+      this.title = obj.name;
+      this.page = 1;
+      this.pageSize = 10;
+      this.good_list = [];
+      // uni.showLoading({ title: '数据加载中，请稍后' });
+      this.getProductList();
+    },
   }
 };
 </script>
@@ -563,40 +575,31 @@ export default {
   width: 100%;
   min-height: 100%;
 }
-
 .content {
   //display: flex;
   //flex-direction: row;
   //flex-wrap: wrap;
   background-color: #f8f8f8;
-
   .search-box {
     background-color: #ffffff;
   }
-
   .totation-box {
     background-color: #ffffff;
-    padding-bottom: 36rpx;
     position: relative;
     border-radius: 0 0 60rpx 60rpx;
   }
-
   .goods-list-wrap {
     display: flex;
     flex-wrap: wrap;
-    padding-top: 24rpx;
   }
-
   .fixed-intro {
     position: fixed;
     background-color: #ffffff;
     z-index: 10;
     width: 100%;
-
     .tab-bar-wrap {
       height: 88rpx;
       white-space: nowrap;
-
       .tab {
         height: 88rpx;
         position: relative;
@@ -608,13 +611,11 @@ export default {
         margin-left: 53rpx;
         line-height: 88rpx;
       }
-
       .active-tab {
         position: relative;
         color: #333333;
         font-weight: 500;
       }
-
       .active-tab:after {
         position: absolute;
         left: 0;
@@ -625,28 +626,23 @@ export default {
         border-radius: 5rpx;
         background-color: #fd7600;
       }
-
       .tab:last-of-type {
         margin-right: 21rpx;
       }
-
       .tab:first-of-type {
         margin-left: 21rpx;
       }
     }
-
     .tab-bar-wrap::-webkit-scrollbar {
       display: none;
     }
   }
 }
-
 scroll-view ::-webkit-scrollbar {
   width: 0;
   height: 0;
   background-color: transparent;
 }
-
 .bottom_bottom {
   width: 100%;
   height: 3.5rem;
@@ -669,7 +665,6 @@ scroll-view ::-webkit-scrollbar {
 
   .popupSkuView {
     min-height: 520rpx;
-
     .popupClose {
       position: fixed;
       right: 0;
@@ -677,17 +672,14 @@ scroll-view ::-webkit-scrollbar {
       padding-top: 34upx;
       float: right;
       z-index: 99999;
-
       img {
         width: 46upx;
         height: 46upx;
       }
     }
-
     .popupSkuView-good {
       width: 300upx;
       background-color: #fff;
-
       .popupSkuView-good-img-view {
         background-color: #fff;
         position: fixed;
@@ -699,14 +691,12 @@ scroll-view ::-webkit-scrollbar {
         padding-top: 42upx;
         padding-left: 33upx;
         padding-right: 24upx;
-
         .popupSkuView-good-img {
           width: 160upx;
           height: 160upx;
           border-radius: 10upx;
         }
       }
-
       .popupSkuView-good-desc {
         position: fixed;
         margin-left: 210upx;
@@ -714,47 +704,39 @@ scroll-view ::-webkit-scrollbar {
         width: 100%;
         z-index: 100;
         background-color: #fff;
-
         .popupSkuView-good-desc-title {
           color: #333;
           font-size: 30upx;
           padding-top: 64upx;
         }
-
         .popupSkuView-good-desc-money {
           color: #fd7600;
           font-size: 34upx;
           padding-top: 24upx;
-
           .popupSkuView-good-desc-money-s {
             font-size: 30upx;
           }
         }
       }
     }
-
     .popupSkuView-list {
       padding-top: 220upx;
-
       .popupSkuView-list-item {
         .popupSkuView-list-item-h1 {
           font-size: 28upx;
           margin-top: 37upx;
           margin-left: 32upx;
         }
-
         .popupSkuView-list-item-button {
           display: inline-block;
           text-align: center;
           font-size: 28upx;
           color: #666;
-
           .active {
             color: #fff;
             background-color: #fd7600;
             border: 1upx solid #fd7600;
           }
-
           button {
             float: left;
             padding-left: 28upx;
@@ -772,29 +754,24 @@ scroll-view ::-webkit-scrollbar {
         }
       }
     }
-
     .popupSkuView-num {
       padding-bottom: 240upx;
-
       .popupSkuView-list-item-h1-num {
         font-size: 28upx;
         margin-top: 37upx;
         margin-left: 32upx;
         display: inline;
       }
-
       .popupSkuView-item-num {
         float: right;
         margin-top: 15upx;
         padding-right: 35upx;
-
         .num-button {
           float: left;
           width: 51.3upx;
           height: 48.4upx;
           margin-top: 3.5upx;
         }
-
         p {
           margin: 0 6upx;
           background-color: #fafafa;
@@ -808,13 +785,11 @@ scroll-view ::-webkit-scrollbar {
         }
       }
     }
-
     .popupSkuView-sub {
       position: fixed;
       bottom: 0;
       width: 100%;
       background: #fff;
-
       .popupSkuView-sub-btn {
         width: 90%;
         border-radius: 46upx;
@@ -829,10 +804,10 @@ scroll-view ::-webkit-scrollbar {
     }
   }
 }
-
 .rotation {
   //background-image: url(https://admin.dajxyl.com/oss?path=img/lunbobg@2x_origin.png);
   width: 100%;
+  //height: 337upx;
   display: flex;
   justify-content: center;
   background-size: 100% 60%;
@@ -840,7 +815,6 @@ scroll-view ::-webkit-scrollbar {
   background-color: #ffffff;
   align-items: center;
 }
-
 .rotation-ns {
   //background-image: url(https://admin.dajxyl.com/oss?path=img/topbg2@2x_origin.png);
   background-size: 100% 60%;

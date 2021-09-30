@@ -3,7 +3,7 @@
 		<view :style="{borderRadius:radius+'px',backgroundColor: bgColor}" class="uni-searchbar__box" @click="searchClick">
 			<view class="uni-searchbar__box-icon-search">
 				<slot name="searchIcon">
-					<uni-icons color="#999999" size="18" type="search" />
+          <text class="iconfont icon-sousuo"></text>
 				</slot>
 			</view>
       <swiper class="swiper"
@@ -21,7 +21,7 @@
 			<view v-if="show && (clearButton==='always'||clearButton==='auto'&&searchVal!=='')" class="uni-searchbar__box-icon-clear"
 			 @click="clear">
 				<slot name="clearIcon">
-					<uni-icons color="#c0c4cc" size="15" type="clear" />
+					<text class="iconfont icon-guanbi"></text>
 				</slot>
 			</view>
 		</view>
@@ -130,7 +130,6 @@
 					if (newVal) {
 						this.show = true
 					} else{
-					  console.log('333333333333333333333333333333')
 					  this.show = false
           }
 				}
@@ -152,6 +151,7 @@
 				handler(newVal) {
 					if (newVal) {
 						this.show = true
+            this.showSync = false
             this.$nextTick(() => {
               this.showSync = true
             })
@@ -245,7 +245,8 @@
 </script>
 
 <style lang="scss" scoped>
-	$uni-searchbar-height: 36px;
+	$uni-searchbar-height: 72rpx;
+  $uni-font-size-base: 26rpx;
 
 	.uni-searchbar {
 		/* #ifndef APP-NVUE */
@@ -253,7 +254,7 @@
 		/* #endif */
 		flex-direction: row;
 		position: relative;
-    padding: 16rpx 16rpx 20rpx 16rpx;
+    padding: 20rpx 0;
 		// background-color: $uni-bg-color;
 	}
 
@@ -278,7 +279,7 @@
 		/* #endif */
 		flex-direction: row;
 		// width: 32px;
-		padding: 0 8px;
+		padding: 0 8px 2rpx 42rpx;
 		justify-content: center;
 		align-items: center;
 		color: $uni-text-color-placeholder;
@@ -292,8 +293,9 @@
 
 	.uni-searchbar__box-icon-clear {
 		align-items: center;
-		line-height: 24px;
+		line-height: $uni-searchbar-height;
 		padding-left: 8px;
+    padding-right: 28rpx;
 		/* #ifdef H5 */
 		cursor: pointer;
 		/* #endif */
@@ -303,6 +305,9 @@
 		font-size: $uni-font-size-base;
 		color: $uni-text-color-placeholder;
 		margin-left: 5px;;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 	}
 
 	.uni-searchbar__cancel {
@@ -314,4 +319,28 @@
 		cursor: pointer;
 		/* #endif */
 	}
+  @font-face {
+    font-family: 'iconfont';  /* Project id 2787414 */
+    src: url('//at.alicdn.com/t/font_2787414_fx7qwcsbcve.woff2?t=1632470449916') format('woff2'),
+    url('//at.alicdn.com/t/font_2787414_fx7qwcsbcve.woff?t=1632470449916') format('woff'),
+    url('//at.alicdn.com/t/font_2787414_fx7qwcsbcve.ttf?t=1632470449916') format('truetype');
+  }
+  .iconfont {
+    font-family: 'iconfont' !important;
+    font-size: 16px;
+    font-style: normal;
+    fill: currentColor;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .icon-sousuo:before {
+    content: '\e617';
+    font-size: 33rpx;
+    color: #999999;
+  }
+  .icon-guanbi:before {
+    content: '\e610';
+    font-size: 21rpx;
+    color: #333;
+  }
 </style>

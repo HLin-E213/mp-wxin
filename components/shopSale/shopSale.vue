@@ -6,7 +6,7 @@
     </view>
     <view class="shop_saleContent">
       <view class="shop_sale_list" v-for="(i,k) in shopList" :key="k" @click="gotoInfo(i)">
-        <img class="shop_left_content" :src="i.productImages && i.productImages.url || ''" alt="">
+        <img class="shop_left_content" mode="aspectFill" :src="i.productImages && i.productImages.url || ''" alt="">
         <view class="shop_right_content">
           <h4>{{ i.title && i.title.length > 8 ? i.title.slice(0,8) + '...' : i.title }}</h4>
           <h5>{{ i.description && i.description.length > 24 ? i.description.slice(0,24) + '...' : i.description }}</h5>

@@ -13,7 +13,6 @@
         :list="historySearchList"
         @hClick="onClick"
     >
-      <uni-icons style="display: flex; align-items: center;" slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
     </uni-search-bar>
   </view>
 </template>
@@ -69,6 +68,7 @@ export default {
 
 <style lang="scss" scoped>
 .dajx-search-bar {
+  padding: 0 45rpx;
   /deep/ .uni-searchbar__box {
     border-radius: 36rpx !important;
   }

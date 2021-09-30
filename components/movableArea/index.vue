@@ -86,7 +86,7 @@ export default {
 <style scoped lang="less">
   .movableArea1 {
     position: fixed;
-    top: 0;
+    top: 80px;
     left: 0;
     width: 100%;
     height: 100%;

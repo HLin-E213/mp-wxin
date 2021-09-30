@@ -6,7 +6,7 @@
         <view class="nav-bar-wrap"
               :style="{'flex-flow': list.length>4 && list.length < 9?'wrap':list.length<4?'':'column wrap'}">
           <block v-for="(item, index) in list" :key="index">
-            <view class="nav-bar-item" @click.stop="gotoInfo(e)">
+            <view class="nav-bar-item" @click.stop="gotoInfo(item)">
               <view style="background-color: #eeeeee;border-radius: 50%;">
                 <image mode="aspectFill" :src="item.product_category_image" />
               </view>
@@ -77,10 +77,12 @@ scroll-view {
   height:0;
   color:transparent;
 }
+.category-box{
+  padding-top: 30rpx;
+}
 .nav-bar-wrap {
   display: flex;
-  padding-top: 10rpx;
-  height: 380rpx;
+  height:400rpx;
 }
 
 .nav-bar-item {
@@ -88,7 +90,7 @@ scroll-view {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 26rpx;
+  padding-bottom: 26rpx;
 }
 
 .nav-bar-item image {
@@ -112,7 +114,7 @@ scroll-view {
 
 .slider {
   position: absolute;
-  bottom: 20rpx;
+  bottom: 18rpx;
   left: 50%;
   transform: translateX(-50%);
   width: 46rpx;

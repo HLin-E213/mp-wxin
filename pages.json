@@ -364,7 +364,7 @@
       "style": {
         "navigationBarTitleText": "商城",
         "navigationBarTextStyle": "black",
-        "enablePullDownRefresh": false
+        "enablePullDownRefresh": true
       }
     }
     ],
@@ -438,7 +438,7 @@
         "style": {
           "navigationBarTitleText": "搜索",
           "navigationBarTextStyle": "black",
-          "enablePullDownRefresh": false
+          "enablePullDownRefresh": true
         }
       }
     ]

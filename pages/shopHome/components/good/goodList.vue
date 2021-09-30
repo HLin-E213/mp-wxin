@@ -8,7 +8,7 @@
     </view>
     <view class="good-list-desc" @click="gotoInfo">
       <h1>{{ title }}</h1>
-      <p>{{ goodTitleDesc.length > 22 ? goodTitleDesc.slice(0,22) + '...' : goodTitleDesc }}</p>
+      <view class="pro-desc">{{ goodTitleDesc }}</view>
     </view>
     <view class="good-list-price">
       <span class="price-unit">￥</span><span class="price">{{ money }}</span><span class="unit">/{{ unit }}</span>
@@ -92,7 +92,7 @@ export default {
   flex-flow: wrap;
   background: #fff;
   border-radius: 6upx;
-  margin-top: 26upx;
+  margin-bottom: 26upx;
   margin-left: 20upx;
 }
 .good-list-img{
@@ -150,5 +150,18 @@ export default {
   height: 48upx;
   float: right;
   margin-top: 10upx;
+}
+.pro-desc{
+  width: 300upx;
+  height: 67rpx;
+  padding: 0 13rpx;
+  color: #666666;
+  font-size: 26rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break:break-all
 }
 </style>

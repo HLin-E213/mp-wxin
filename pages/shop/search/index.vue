@@ -1,11 +1,12 @@
 <template>
   <layout :title="title" :showFooter="false" footerHeight="0">
-    <view class="container" :style="{backgroundColor:isSearch?'#f8f8f8':'#ffffff'}">
+    <view class="container" :style="{backgroundColor:isSearch?good_list.length === 0?'#ffffff':'#f8f8f8':'#ffffff'}">
       <!--  搜索栏    -->
-      <view class="dajx-search-bar">
+      <view class="dajx-search-bar"
+            :class="[isFixed?'is-fixed':'']" id="scrollId" :style="{top: nameTop + 'px', padding: isSearch?'0 45rpx':'0 20rpx'}">
         <view class="search-box">
           <uni-search-bar
-              v-model="keyword"
+              :value="keyword"
               :focus="isFocus"
               :list="historySearchList"
               clearButton="auto"
@@ -19,10 +20,12 @@
               :placeholder="placeholderText"
               :radius="18"
           >
-            <uni-icons style="display: flex; align-items: center;" slot="searchIcon" color="#999999" size="18" type="search"></uni-icons>
           </uni-search-bar>
-        </view>
-        <view class="dajx-search-btn" @click="search({value: keyword})">搜索</view>
+        </view> 
+        <view class="dajx-search-btn" v-if="!isSearch" @click="search({value: keyword})">搜索</view>
+      </view>
+      <view v-show="hasMore">
+        <uni-load-more :status="loadStatus" ></uni-load-more>
       </view>
       <!--  历史搜索  -->
       <history ref="history" :list="historySearchList" @toGoods="search" @clearAll="clearAll" v-if="historySearchList.length && !isSearch"></history>
@@ -52,7 +55,7 @@
                   <view class="popupSkuView">
                     <view class="popupClose" @click="cancelSelectSpec"><img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭" /></view>
                     <view class="popupSkuView-good">
-                      <view class="popupSkuView-good-img-view"><img class="popupSkuView-good-img" :src="sku_img[0] && sku_img[0].img_src" alt="" /></view>
+                      <view class="popupSkuView-good-img-view"><image class="popupSkuView-good-img" mode="aspectFill" :src="sku_img[0] && sku_img[0].img_src"></image></view>
                       <view class="popupSkuView-good-desc">
                         <h1 class="popupSkuView-good-desc-title">{{ good_name.length > 10 ? good_name.slice(0, 10) + '...' : good_name }}</h1>
                         <p class="popupSkuView-good-desc-money">
@@ -110,6 +113,7 @@ import { addCart, getCartCount } from '@/api/shop/cart';
 import { getCategoryList } from '@/api';
 import { fenToYuan } from '@/utils/money';
 import { rotationPicture } from '@/api/index.js';
+import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
 export default {
   name: 'search',
   components: {
@@ -120,12 +124,15 @@ export default {
     hotProduct,
     movable,
     goodList,
-    emptyData
+    emptyData,
+    uniLoadMore
   },
   data() {
     return {
       title: '搜索',
       isSearch: false,
+      loadStatus: 'loading',
+      hasMore: false,
       historySearchList: [],
       keyword: '', // 搜索词
       iconUrl: require('@/static/search2.png'),
@@ -193,7 +200,11 @@ export default {
       isPromotioning: false, // 是否正在促销中、为false代表促销活动还未开始
       ids: 1,
       img_list: [],
-      product_category_list: [] // 商品分类
+      product_category_list: [], // 商品分类
+      isFixed: false,
+      nameTop: '',
+      rect: 0,
+      product_promotion_category_id: ''
     };
   },
   computed: {
@@ -244,9 +255,33 @@ export default {
         }
         return false;
       };
+    },
+    //滑动组件置顶
+    pageFixed(){
+      if (this.rect > this.nameTop ){
+        this.isFixed = true;
+      }else{
+        this.isFixed = false;
+      }
     }
   },
-  mounted() {},
+  onPageScroll(e){
+    this.rect = e.scrollTop;
+  },
+  onLoad(){
+    let that = this;
+    const query = wx.createSelectorQuery();
+    query.select('#scrollId').boundingClientRect();
+    query.exec(function(res){
+      if(res && res[0])
+        that.nameTop = res[0].top
+    })
+  },
+  created(){
+    this.keyword = ''
+    // this.inputShowVal = ''
+    this.isFocus = true
+  },
   onShow() {
     this.isFocus = false;
     const categoryId = uni.getStorageSync('setDefaultShopCategoryId');
@@ -271,6 +306,8 @@ export default {
   onPullDownRefresh() {
     this.page = 1;
     this.pageSize = 10;
+    this.hasMore = true
+    this.loadStatus = 'loading'
     this.getProductList();
   },
   methods: {
@@ -305,7 +342,8 @@ export default {
         }
       }
       this.isSearch = true;
-      this.good_list = [];
+      this.page = 1;
+      this.pageSize = 10;
       this.getProductList();
     },
     async getHistory() {
@@ -328,14 +366,21 @@ export default {
     },
     clear() {
       this.isSearch = false;
-      this.good_list = [];
+      this.keyword = ''
+      // this.inputShowVal = ''
+      this.isFocus = false
+      this.categoryId = ''
+      this.product_promotion_category_id = ''
+      this.$nextTick(()=>{
+        this.isFocus = true
+      })
     },
     onBlur() {},
     onfocus() {},
     // 获取商品
     getProductList: function() {
-      console.log('this.keyword', this.keyword)
-      const ret = getProductList(false, this.categoryId, this.keyword, this.pageSize, this.page);
+      const that = this
+      const ret = getProductList(false, this.categoryId, this.keyword, this.product_promotion_category_id, this.pageSize, this.page);
       ret.then(value => {
         this.totalPage = value.data.data.totalPage;
         if (this.page === 1) {
@@ -344,6 +389,7 @@ export default {
           this.good_list.push(...value.data.data.info);
         }
       }).finally(function() {
+        that.hasMore = false
         uni.hideLoading();
         uni.stopPullDownRefresh();
       });
@@ -578,6 +624,8 @@ export default {
 .goods-list-wrap {
   display: flex;
   flex-wrap: wrap;
+  padding-top: 24rpx;
+  background-color: #f8f8f8;
 }
 .fixed-intro {
   position: fixed;
@@ -788,5 +836,17 @@ scroll-view ::-webkit-scrollbar {
       }
     }
   }
+}
+.is-fixed{
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+.pdd-bt-20{
+  padding-bottom: 20rpx;
+}
+.pdd-t-20{
+  padding-top: 20rpx;
 }
 </style>

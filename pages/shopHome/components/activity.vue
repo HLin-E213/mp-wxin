@@ -1,6 +1,6 @@
 <template>
   <view class="activity">
-    <scroll-view class="nav-bar" @scroll="scroll" scroll-anchoring scroll-x :scroll-with-animation="isTransition" @scrolltoupper="scrolltoupper" :scroll-left='scrollLeft'
+    <scroll-view class="nav-bar" @scroll="scroll" scroll-with-animation scroll-anchoring scroll-x @scrolltoupper="scrolltoupper" :scroll-left='scrollLeft'
                  @scrolltolower="scrolltolower">
       <!-- 使用flex布局实现横向滚动，在scroll-view里加一层容器包裹，才会出现滚动效果 -->
       <view class="nav-bar-wrap"
@@ -10,10 +10,11 @@
                 :class="[promotionList.length > 1?'boc':'', promotionList.length != 1? `item-${i}` : '']"
                 v-for="(e, i) in item" :key="i"
                 :style="{width: (screenWidth/2-5) + 'px'}"
+                :id="'item-'+index+'-'+i"
                 @click="gotoInfo(e)">
             <view class="act-title">
               <view class="tit-right">
-                <view class="act-tit">{{ e.name }}-{{index}}{{i}}</view>
+                <view class="act-tit">{{ e.name }}</view>
                 <view class="price-intro">{{ e.subtitle }}</view>
               </view>
             </view>
@@ -47,15 +48,27 @@ export default {
       screenWidth: 0,
       idx: 0,
       timer: null,
-	  isTransition: true,
-	  leftArr: []
+      lists: [],
+      contactArr: [],
+      leftArr: []
     };
   },
-  computed: {
-    lists() {
-      let arr = [];
+  created() {
+    let that = this
+    const query = uni.createSelectorQuery().in(this);
+    query.select('.nav-bar-wrap').boundingClientRect(data => {
+      that.screenWidth = data.width
+      that.lists  = that.initList([], that.promotionList)
+      that.interval()
+    }).exec();
+  },
+  methods: {
+    initList(initArr = [] ,arrList){
+      let arr = initArr;
       // 赋值给另一个数组
-      let newarr = arr.concat(this.promotionList);
+      let newarr = arr.concat(arrList);
+      this.contactArr = arr.concat(arrList)
+      this.initLeftData()
       // 处理新数组，原数组不变
       // 打印结果
       let len = newarr.length;
@@ -67,74 +80,41 @@ export default {
         arr2.push(temp);
       }
       return arr2;
-    }
-  },
-  created() {
-    const that = this
-    const query = uni.createSelectorQuery().in(this);
-    query.select('.nav-bar-wrap').boundingClientRect(data => {
-      that.screenWidth = data.width
-	  for(let i=0;i<that.promotionList.length;i++){
-		  that.leftArr.push((this.screenWidth / 2) * i)
-	  }
-    }).exec();
-    that.interval()
-  },
-  methods: {
-	  scroll(event){
-		  let that = this
-		  if(that.idx == that.promotionList.length - 1){
-			that.isTransition = false
-		  }
-		  if(that.leftArr.indexOf(event.detail.scrollLeft) == -1){
-			  for(let i=0;i<that.leftArr.length;i++){
-				  if(event.detail.scrollLeft<that.leftArr[i]){
-					  clearInterval(that.timer);
-					  that.timer = null;
-					  
-					  that.idx = that.leftArr.indexOf(that.leftArr[i])
-					  if(that.idx == that.leftArr.length-1){
-						  that.idx = -1
-					  }
-					  that.interval()
-					  // setTimeout(() => {
-						 //  that.scrollLeft = that.leftArr[i]
-						 //  that.idx = that.leftArr.indexOf(that.scrollLeft)
-					  // }, 5000)
-					  return
-				  }
-			  }
-		  }
-		  
-	  },
+    },
+    initLeftData(){
+      this.leftArr = []
+      for(let i=0;i<this.contactArr.length;i++){
+        this.leftArr.push((this.screenWidth / 2) * i)
+      }
+    },
+    scroll(event){
+      let that = this
+      if(that.leftArr.indexOf(event.detail.scrollLeft) === -1){
+        clearInterval(this.timer);
+        this.timer = null;
+        this.idx = that.leftArr.findIndex(v=> v > event.detail.scrollLeft)
+        this.idx++
+        that.interval()
+      }
+    },
     scrolltoupper() {
       this.idx = 1
     },
     scrolltolower() {
-		let that = this
-      setTimeout(()=>{
-		  that.idx = 0
-		  that.scrollLeft = 0
-		  setTimeout(function(){
-		  	that.isTransition = true
-		  },0)
-	  },5000)
-	  
+      console.log('end')
+      let that = this
+      this.lists  = this.initList(this.contactArr, this.promotionList)
+
     },
     interval(){
       const that = this
-      if (this.promotionList.length > 2) {
         that.timer = setInterval(() => {
           that.moveTo()
         }, 5000)
-      }
     },
     moveTo(){
-      this.scrollLeft = (this.screenWidth / 2) * (this.idx + 1)
+      this.scrollLeft = (this.screenWidth / 2) * this.idx
       this.idx++
-	  if(this.idx == this.promotionList.length - 1){
-	  		this.isTransition = false
-	  }
     },
     gotoInfo(obj) {
       this.$emit('toCategoty', obj);
@@ -167,8 +147,8 @@ scroll-view {
 }
 
 .activity {
-  margin: 20rpx 20rpx 0 20rpx;
-  padding: 26rpx 21rpx 26rpx 26rpx;
+  margin: 20rpx 20rpx 24rpx 20rpx;
+  padding: 16rpx 21rpx 18rpx 26rpx;
   background-color: #ffecec;
   border-radius: 10rpx;
 
