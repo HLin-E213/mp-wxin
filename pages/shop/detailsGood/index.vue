@@ -1,16 +1,21 @@
 <template>
-  <layout :title="title" :showFooter="!showPopup" footerHeight="100">
+  <layout :title="title"
+          :showFooter="!showPopup"
+          footerHeight="100"
+  >
     <view class="content">
       <!--轮播图组件-->
       <shop-banner :img_list="img_list" @previewImage="previewImage"></shop-banner>
       <!--商品标题价格-->
       <view class="good-title">
         <view class="good-promotion" v-if="is_promotion">
-          <view class="good-promotion-view-img"><img class="good-promotion-img" :src="good_promotion_img" alt="promotion_mark" /></view>
+          <view class="good-promotion-view-img">
+            <img class="good-promotion-img" :src="good_promotion_img" alt="promotion_mark">
+          </view>
           <view class="good-promotion-view-list">
             <view class="good-promotion-view-money">
               <span class="good-promotion-money-unit">￥</span>
-              <span class="good-promotion-money-s">{{ skuPrice[0] }}.{{ skuPrice[1] }}</span>
+              <span class="good-promotion-money-s">{{skuPrice[0] }}.{{ skuPrice[1]}}</span>
             </view>
             <view class="good-promotion-attribute">
               <span class="good-promotion-original-price">原价：￥{{ original_price }}</span>
@@ -19,21 +24,18 @@
           </view>
           <view class="good-promotion-time">
             <view class="good-promotion-time__title">
-              <img class="good-promotion-time-img" :src="time_circle" alt="time" />
+              <img class="good-promotion-time-img" :src="time_circle" alt="time">
               <p class="good-promotion-time-title">{{ isPromotioning ? activity_time_title : '活动倒计时' }}</p>
             </view>
             <view>
-              <span class="time-hour">{{ time1 }}</span>
-              <span class="blot">:</span>
-              <span class="time-hour">{{ time2 }}</span>
-              <span class="blot">:</span>
+              <span class="time-hour">{{ time1 }}</span><span class="blot">:</span>
+              <span class="time-hour">{{ time2 }}</span><span class="blot">:</span>
               <span class="time-hour">{{ time3 }}</span>
             </view>
           </view>
         </view>
         <view class="good-money" v-else>
-          <span class="good-money-unit">￥</span>
-          <span class="good-money-s">{{ skuPrice[0] }}.{{ skuPrice[1] }}</span>
+          <span class="good-money-unit">￥</span><span class="good-money-s">{{ skuPrice[0] }}.{{ skuPrice[1] }}</span>
         </view>
         <view class="good-title-list">
           <h1 class="good-title-item-h1">{{ good_name }}</h1>
@@ -45,21 +47,21 @@
         <view class="good-attribute-item" @click="openCoupon">
           <h1>优惠券</h1>
           <p class="good-attribute-none">{{ coupon }}</p>
-          <img :src="more_img" alt="shopMore" v-if="coupon_list.length" />
+          <img :src="more_img" alt="shopMore" v-if="coupon_list.length">
         </view>
       </view>
       <!--规格-->
       <!--地址-->
       <view class="good-attribute">
         <view class="good-attribute-item border" @click="openSku">
-          <h1>已选</h1>
-          <p>{{ sku.length > 20 ? sku.slice(0, 20) + '...' : sku }}</p>
-          <img :src="more_img" alt="shopMore" />
+            <h1>已选</h1>
+            <p>{{ sku.length > 20 ? sku.slice(0,20) + '...' : sku }}</p>
+            <img :src="more_img" alt="shopMore">
         </view>
         <view class="good-attribute-item" @click="openAddress">
-          <h1>地址</h1>
-          <p>{{ showAddress(activeAddress) }}</p>
-          <img :src="more_img" alt="shopMore" />
+            <h1>地址</h1>
+            <p>{{ showAddress(activeAddress) }}</p>
+            <img :src="more_img" alt="shopMore">
         </view>
       </view>
       <!-- 商品介绍 -->
@@ -70,7 +72,7 @@
         </view>
         <view class="cont">
           <view v-for="(item, index) in desc_img" @click="previewImage(item.img_src, desc_img)" :key="index">
-            <img :src="item && item.img_src" mode="widthFix" alt="保洁详情.png" />
+            <img :src="item && item.img_src" mode="widthFix"  alt="保洁详情.png">
           </view>
         </view>
       </view>
@@ -79,27 +81,36 @@
 
       <template>
         <view :class="showPopup ? '.wos-scroll-no' : '.wos-scroll-yes'">
-          <uni-popup :maskClick="isMask" ref="popup" type="bottom" @change="changePopup">
+          <uni-popup :maskClick="isMask" ref="popup" type="bottom" @change='changePopup'>
             <view class="popupView">
               <!--弹出层-优惠券-->
               <view v-if="isPopupCoupon">
                 <view class="popupCouponView">
-                  <view class="popupClose" @click="closePopup"><img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭" /></view>
-                  <view class="popupCouponView-view"><coupons-get :couponlist="coupon_list" :couponText="coupon_text" :isShop="true"></coupons-get></view>
+                  <view class="popupClose" @click="closePopup">
+                    <img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭">
+                  </view>
+                  <view class="popupCouponView-view">
+                    <coupons-get
+                        :couponlist="coupon_list"
+                        :couponText="coupon_text"
+                        :isShop="true"
+                    ></coupons-get>
+                  </view>
                 </view>
               </view>
               <!-- 弹出层-规格 -->
               <view v-if="isPopupSku">
                 <view class="popupSkuView">
-                  <view class="popupClose" @click="cancelSelectSpec"><img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭" /></view>
+                  <view class="popupClose" @click="cancelSelectSpec">
+                    <img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭">
+                  </view>
                   <view class="popupSkuView-good">
-                    <view class="popupSkuView-good-img-view"><image class="popupSkuView-good-img" mode="aspectFill" :src="sku_img[0] && sku_img[0].img_src"></image></view>
+                    <view class="popupSkuView-good-img-view">
+                      <img class="popupSkuView-good-img" :src="sku_img[0] && sku_img[0].img_src" alt="">
+                    </view>
                     <view class="popupSkuView-good-desc">
-                      <h1 class="popupSkuView-good-desc-title">{{ good_name.length > 10 ? good_name.slice(0, 10) + '...' : good_name }}</h1>
-                      <p class="popupSkuView-good-desc-money">
-                        ￥{{ skuPrice[0] }}.
-                        <span class="popupSkuView-good-desc-money-s">{{ skuPrice[1] }}</span>
-                      </p>
+                      <h1 class="popupSkuView-good-desc-title">{{ good_name.length > 10 ? good_name.slice(0,10) + '...' : good_name }}</h1>
+                      <p class="popupSkuView-good-desc-money">￥{{ skuPrice[0] }}.<span class="popupSkuView-good-desc-money-s">{{ skuPrice[1] }}</span></p>
                     </view>
                   </view>
                   <view class="popupSkuView-list">
@@ -107,7 +118,7 @@
                       <h1 class="popupSkuView-list-item-h1">{{ sku.title }}</h1>
                       <view class="popupSkuView-list-item-button">
                         <template v-for="skuV in sku.productSpecValue">
-                          <button @click="selectSpec(sku, skuV)" :class="{ active: select_spec_id.includes(Number(skuV.id)) }">{{ skuV.value }}</button>
+                          <button @click="selectSpec(sku, skuV)" :class="{'active' :  select_spec_id.includes(Number(skuV.id))}">{{ skuV.value }}</button>
                         </template>
                       </view>
                     </view>
@@ -115,20 +126,24 @@
                   <view class="popupSkuView-num">
                     <h1 class="popupSkuView-list-item-h1-num">数量</h1>
                     <view class="popupSkuView-item-num">
-                      <img class="num-button" @click="subGoodNum" src="https://admin.dajxyl.com/oss?path=img/reduce@2x.png" alt="-" />
+                      <img class="num-button" @click="subGoodNum" src="https://admin.dajxyl.com/oss?path=img/reduce@2x.png" alt="-">
                       <p>{{ good_num }}</p>
-                      <img class="num-button" @click="addGoodNum" src="https://admin.dajxyl.com/oss?path=img/add@2x.png" alt="+" />
+                      <img class="num-button" @click="addGoodNum" src="https://admin.dajxyl.com/oss?path=img/add@2x.png" alt="+">
                     </view>
                   </view>
-                  <view class="popupSkuView-sub"><button class="popupSkuView-sub-btn" @click.stop="ensureSelectSpec">确认</button></view>
+                  <view class="popupSkuView-sub">
+                    <button class="popupSkuView-sub-btn" @click.stop="ensureSelectSpec">确认</button>
+                  </view>
                 </view>
               </view>
               <!-- 弹出层-地址 -->
               <view v-if="isPopupAddress">
                 <view class="popupAddressView">
-                  <view class="popupClose" @click="closePopup"><img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭" /></view>
+                  <view class="popupClose" @click="closePopup">
+                    <img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭">
+                  </view>
                   <view class="popupAddressView-list">
-                    <view class="popupAddressView-item" v-for="(address, index) in addressList" @click="selectAddress(index)">
+                    <view class="popupAddressView-item" v-for="(address,index) in addressList" @click="selectAddress(index)">
                       <span class="popupAddressView-item-span active" v-if="address.id === activeAddress.id"></span>
                       <span class="popupAddressView-item-span" v-else></span>
                       <span class="popupAddressView-item-name">{{ address.name }}</span>
@@ -136,41 +151,48 @@
                       <p class="popupAddressView-item-desc">{{ address.desc }}</p>
                     </view>
                   </view>
-                  <view class="popupAddressView-sub"><button class="popupAddressView-sub-btn" @click="AddAddress">添加新地址</button></view>
+                  <view class="popupAddressView-sub">
+                    <button class="popupAddressView-sub-btn" @click="AddAddress">添加新地址</button>
+                  </view>
                 </view>
               </view>
             </view>
           </uni-popup>
         </view>
       </template>
+
     </view>
     <view slot="footer" id="footer" ref="footer">
       <!-- 下部菜单固定栏 -->
-      <view class="btn_bottom" :class="{ 'ipx-btn-bottom': isIPX }">
+      <view class="btn_bottom" :class="{'ipx-btn-bottom': isIPX}">
         <view class="btn_left" @click="gotoShoppingCart">
           <view class="btn_shop_car">
             <view class="num">{{ good_car_num }}</view>
           </view>
         </view>
-        <view class="btn_right"><button class="white" type="primary" @click="checkSelectSku(1)">加入购物车</button></view>
-        <view class="btn_right" @click="checkSelectSku(2)"><button type="primary">立即购买</button></view>
+        <view class="btn_right">
+          <button class="white" type="primary" @click="checkSelectSku(1)">加入购物车</button>
+        </view>
+        <view class="btn_right" @click="checkSelectSku(2)">
+          <button type="primary">立即购买</button>
+        </view>
       </view>
     </view>
   </layout>
 </template>
 
 <script>
-import layout from '@/components/layout/index.vue';
+import layout from "@/components/layout/index.vue";
 import uniPopup from '@/components/uni-popup/uni-popup.vue';
 import uniPopupMessage from '@/components/uni-popup/uni-popup-message.vue';
 import uniPopupDialog from '@/components/uni-popup/uni-popup-dialog.vue';
-import shopSale from '@/components/shopSale/shopSale.vue';
-import shopBanner from './components/shopBanner';
+import shopSale from "@/components/shopSale/shopSale.vue";
+import shopBanner from "./components/shopBanner";
 import CouponsGet from '@/components/couponsGet/couponsGet.vue';
-import { getProductInfo, getProductList, getProductSKU } from '../../../api/shop/product';
-import { addCart, getCartCount } from '../../../api/shop/cart';
-import { codeInvitation, getAddressList } from '../../../api/index';
-import { mapMutations } from 'vuex';
+import {getProductInfo, getProductList, getProductSKU} from "../../../api/shop/product";
+import {addCart, getCartCount} from "../../../api/shop/cart";
+import {codeInvitation, getAddressList} from "../../../api/index";
+import {mapMutations} from 'vuex';
 import { fenToYuan } from '@/utils/money';
 import countDown from '@/mixins/countDown.js';
 
@@ -185,98 +207,97 @@ export default {
     uniPopupDialog,
     CouponsGet
   },
-  mixins: [countDown],
-  watch: {
-    innerRemainPayTime: {
-      handler(val) {
-        if (val) {
-          const [time1, time2, time3] = val.split(':');
-          this.time1 = time1;
-          this.time2 = time2;
-          this.time3 = time3;
+    mixins: [countDown],
+    watch: {
+        innerRemainPayTime: {
+            handler(val) {
+                if (val) {
+                    const [time1, time2, time3] = val.split(':');
+                    this.time1 = time1;
+                    this.time2 = time2;
+                    this.time3 = time3;
+                }
+            },
+            immediate: true,
         }
-      },
-      immediate: true
-    }
-  },
+    },
   computed: {
-    ...mapMutations('orders', {
-      setActiveCoupon: 'setActiveCoupon'
+    ...mapMutations('orders',{
+      'setActiveCoupon': 'setActiveCoupon',
     }),
-    showAddress() {
-      return function({ desc }) {
+    showAddress(){
+      return function({desc}){
         if (desc) {
-          return desc.length > 20 ? desc.slice(0, 20) + '...' : desc;
+          return desc.length > 20 ? desc.slice(0,20) + '...' :desc;
         }
         return '';
-      };
-    },
-    sku() {
-      // '中老年益生菌，1kg，1件'
-      let sku = this.good_name + '，';
-      const { product_spec = [] } = this.selectSKU;
-      product_spec.forEach(i => {
-        sku += i.product_spec_value.value + '，';
-      });
-      sku += this.good_num + this.good_unit;
-      return sku;
-    },
-    select_spec_id() {
-      const selectArr = [];
-      const { product_spec = [] } = this.selectSKU;
-      product_spec.forEach(spec => {
-        selectArr.push(spec.product_spec_value.id);
-      });
-      return selectArr;
-    },
-    skuPrice() {
-      const { price = 0 } = this.selectSKU;
-      if (this.promotingSku) {
-        return this.promotingMoney.split('.');
       }
-      return fenToYuan(price).split('.');
     },
-    formatMoney() {
-      const { price = 0 } = this.selectSKU;
-      if (this.promotingSku) {
-        return this.promotingMoney.split('.');
-      }
-      return fenToYuan(price).split('.');
-    },
-    shareImg(){
+      sku() { // '中老年益生菌，1kg，1件'
+          let sku = this.good_name + '，';
+          const { product_spec = [] } = this.selectSKU;
+          product_spec.forEach((i) => {
+              sku += i.product_spec_value.value + '，';
+          });
+          sku += this.good_num + this.good_unit;
+        return sku
+      },
+      select_spec_id() {
+          const selectArr = [];
+          const { product_spec = [] } = this.selectSKU;
+          product_spec.forEach((spec) => {
+              selectArr.push(spec.product_spec_value.id);
+          });
+          return selectArr;
+      },
+      skuPrice() {
+        const { price = 0} = this.selectSKU;
+        if (this.promotingSku) {
+            return this.promotingMoney.split('.');
+        }
+        return fenToYuan(price).split('.');
+      },
+      formatMoney() {
+        const { price = 0} = this.selectSKU;
+        if (this.promotingSku) {
+          return this.promotingMoney.split('.');
+        }
+        return fenToYuan(price).split('.');
+      },
+      shareImg(){
       let imgSrc = this.img_list.length?this.img_list[0].img_src:''
       return imgSrc
     },
   },
-  onShareAppMessage: async function(options) {
+  onShareAppMessage: async function() {
     return {
-      title: this.good_name,
+      title: '大爱金孝',
       path: '/pages/shop/detailsGood/index?id=' + this.productID,
       imageUrl: this.shareImg,
       success: () => {
         console.log('分享商品详情成功');
       }
     }
-},
+  },
   onLoad(option) {
     if (option.id) {
       this.productID = option.id;
       this.getProductInfo(option.id);
     } else {
       return uni.switchTab({
-        url: '/pages/shopHome/index'
+        url: '/pages/shopHome/index',
       });
     }
     this.getProductRecommend();
     this.$nextTick(() => {
-      try {
-        this.footerHeight = `${this.$refs.footer.$parent.$el.offsetHeight}px`;
-      } catch (e) {
-        console.log(e);
-      }
-    });
+        try {
+            this.footerHeight = `${this.$refs.footer.$parent.$el.offsetHeight}px`;
+        } catch (e) {
+            console.log(e);
+        }
+    })
   },
-  onShow() {
+  onShow(){
     if (this.productID) {
       this.getProductInfo(this.productID);
     }
@@ -324,9 +345,9 @@ export default {
       time3: '',
       // 商品是否促销
       is_promotion: false,
-      // 在选择规格时候该规格是否在促销活动中
+        // 在选择规格时候该规格是否在促销活动中
       promotingSku: false,
-      promotingMoney: '0.00', // 在选择规格时候该规格的促销价格
+      promotingMoney: '0.00',// 在选择规格时候该规格的促销价格
       // 商品名称
       good_name: '',
       // 商品描述
@@ -373,11 +394,11 @@ export default {
   },
   methods: {
     ...mapMutations('users', {
-      setEditorData: 'setEditorData',
-      setAddressData: 'setAddressData'
+      'setEditorData': 'setEditorData',
+      'setAddressData': 'setAddressData',
     }),
     ...mapMutations('orders', {
-      setShopSelectSku: 'setShopSelectSku'
+      'setShopSelectSku': 'setShopSelectSku',
     }),
     onShareTimeline() {
       return {
@@ -399,89 +420,88 @@ export default {
         this.openSku();
       }
     },
-    /**
-     * 预览图片
-     * */
-    previewImage(image, imgArr) {
-      const dealedImgArr = imgArr.map(img => img && img.img_src);
-      //预览图片
-      uni.previewImage({
-        urls: dealedImgArr,
-        current: image
-      });
-    },
-    /**
-     * 选择规格时候，来自动判断当前选择规格属于哪一个sku
-     * 1.首先将已经选中的sku取出
-     * 2.将sku中同样名称的规格与选中的规格做替换
-     * 3.再去sku列表中遍历找到选中的sk并替换
-     * */
+      /**
+       * 预览图片
+       * */
+      previewImage(image, imgArr) {
+          const dealedImgArr = imgArr.map(img => (img && img.img_src));
+          //预览图片
+          uni.previewImage({
+              urls: dealedImgArr,
+              current: image
+          });
+      },
+      /**
+       * 选择规格时候，来自动判断当前选择规格属于哪一个sku
+       * 1.首先将已经选中的sku取出
+       * 2.将sku中同样名称的规格与选中的规格做替换
+       * 3.再去sku列表中遍历找到选中的sk并替换
+       * */
     selectSpec(sku, skuv) {
-      const { product_spec } = this.selectSKU;
-      const { title } = sku;
-      let speckeySpecv = '',
-          bool = false;
-      product_spec.forEach(spec => {
-        let temp = { ...spec };
-        if (temp.product_spec_key.title === title) {
-          temp.product_spec_value = skuv;
-        }
-        //将规格名称id规格值id进行组合，与sku列表内的进行对比，以取出对应的sku；
-        speckeySpecv += `${temp.product_spec_key.id}-${temp.product_spec_value.id}`;
-      });
-      this.productSku.forEach(product => {
-        const { product_spec } = product;
-        let tempSpeckeySpecv = '';
-        product_spec.forEach(spec => {
-          tempSpeckeySpecv += `${spec.product_spec_key.id}-${spec.product_spec_value.id}`;
+        const { product_spec } = this.selectSKU;
+        const { title } = sku;
+        let speckeySpecv = '',bool = false;
+        product_spec.forEach((spec) => {
+            let temp = { ...spec };
+            if(temp.product_spec_key.title === title) {
+                temp.product_spec_value = skuv;
+            }
+            //将规格名称id规格值id进行组合，与sku列表内的进行对比，以取出对应的sku；
+            speckeySpecv += `${temp.product_spec_key.id}-${temp.product_spec_value.id}`;
         });
-        if (speckeySpecv === tempSpeckeySpecv) {
-          if (product.status !== '2') {
-            this.selectSKU = product;
-            console.log(product);
-            this.money = fenToYuan(this.selectSKU.price);
-          } else {
-            bool = true;
+        this.productSku.forEach((product) => {
+            const { product_spec } = product;
+            let tempSpeckeySpecv = '';
+            product_spec.forEach((spec) => {
+                tempSpeckeySpecv += `${spec.product_spec_key.id}-${spec.product_spec_value.id}`
+            });
+            if (speckeySpecv === tempSpeckeySpecv) {
+                if (product.status !== '2') {
+                  this.selectSKU = product;
+                  console.log(product);
+                  this.money = fenToYuan(this.selectSKU.price);
+                } else {
+                  bool = true;
+                }
+            }
+        });
+          const { productPromotionSku = [] } = this.productPromotion || {};
+          const promotingSku = productPromotionSku.find((sku) => (sku.product_sku_id === this.selectSKU.id));
+          this.promotingSku = promotingSku ? true : false;
+          if (promotingSku) {
+              this.promotingMoney = fenToYuan(promotingSku.promotion_price);
+              this.original_price = fenToYuan(this.selectSKU.price);
+              // console.log(promotingSku);
+              this.surplus = promotingSku.promotion_number - promotingSku.used_number;
+              this.dealPromotionInfo();
+            if (this.surplus === 0) {
+              this.is_promotion = false;
+              this.clearTimer();
+              this.innerRemainPayTime = '';
+              this.money = fenToYuan(this.selectSKU.price);
+              this.promotingSku = false;
+            }
           }
-        }
-      });
-      const { productPromotionSku = [] } = this.productPromotion || {};
-      const promotingSku = productPromotionSku.find(sku => sku.product_sku_id === this.selectSKU.id);
-      this.promotingSku = promotingSku ? true : false;
-      if (promotingSku) {
-        this.promotingMoney = fenToYuan(promotingSku.promotion_price);
-        this.original_price = fenToYuan(this.selectSKU.price);
-        // console.log(promotingSku);
-        this.surplus = promotingSku.promotion_number - promotingSku.used_number;
+          if (bool) {
+            return uni.showToast({
+              title: '该商品规格已下架！',
+              duration: 2000,
+              icon: 'none',
+              mask: true,
+            });
+          }
+    },
+      cancelSelectSpec() {
+        // this.selectSKU = JSON.parse(JSON.stringify(this.beforeSelectSku));
+        // this.good_num = this.beforeGoodNum;
+        // this.beforeSelectSku = null;
+        // this.beforeGoodNum = null;
+        this.closePopup()
+      },
+      ensureSelectSpec() {
         this.dealPromotionInfo();
-        if (this.surplus === 0) {
-          this.is_promotion = false;
-          this.clearTimer();
-          this.innerRemainPayTime = '';
-          this.money = fenToYuan(this.selectSKU.price);
-          this.promotingSku = false;
-        }
-      }
-      if (bool) {
-        return uni.showToast({
-          title: '该商品规格已下架！',
-          duration: 2000,
-          icon: 'none',
-          mask: true
-        });
-      }
-    },
-    cancelSelectSpec() {
-      // this.selectSKU = JSON.parse(JSON.stringify(this.beforeSelectSku));
-      // this.good_num = this.beforeGoodNum;
-      // this.beforeSelectSku = null;
-      // this.beforeGoodNum = null;
-      this.closePopup();
-    },
-    ensureSelectSpec() {
-      this.dealPromotionInfo();
-      this.closePopup();
-      switch (this.selectType) {
+        this.closePopup();
+	switch (this.selectType) {
         case 1:
           this.addCartShop();
           break;
@@ -491,85 +511,84 @@ export default {
         default:
           break;
       }
-    },
-    subGoodNum() {
-      this.good_num === 1 ? 0 : (this.good_num -= 1);
-    },
-    addGoodNum() {
-      this.good_num += 1;
-    },
+      },
+      subGoodNum() {
+        this.good_num === 1 ? 0 : this.good_num -= 1;
+      },
+      addGoodNum() {
+          this.good_num += 1;
+      },
     getProductRecommend: function() {
       const ret = getProductList(true);
-      ret.then(value => {
+      ret.then((value) => {
         this.recommend_shop = value.data.data.info;
       });
     },
-    dealPromotionTime() {
-      const { end_time, start_time } = this.productPromotion;
-      const Now = new Date().valueOf();
-      this.endTime = end_time * 1000;
-      this.startTime = start_time * 1000;
-      if (this.startTime >= Now) {
-        this.isPromotioning = false; // 促销未开始
-        const res = this.countDown(this.startTime / 1000, new Date().valueOf() / 1000, 'hh:mm:ss');
-        this.innerRemainPayTime = res;
-        if (this.timer) {
-          this.clearTimer();
-        }
-        if (!res) {
-          this.isPromotioning = true;
-          this.dealPendingTime('hh:mm:ss', 'activing');
-          return false;
+      dealPromotionTime() {
+        const { end_time, start_time } = this.productPromotion;
+        const Now = new Date().valueOf();
+        this.endTime = end_time * 1000;
+        this.startTime = start_time * 1000;
+        if (this.startTime >= Now) {
+            this.isPromotioning = false; // 促销未开始
+            const res = this.countDown(this.startTime / 1000, new Date().valueOf() / 1000, 'hh:mm:ss');
+            this.innerRemainPayTime = res;
+            if (this.timer) {
+                this.clearTimer();
+            }
+            if (!res) {
+                this.isPromotioning = true;
+                this.dealPendingTime('hh:mm:ss', 'activing');
+                return false;
+            } else {
+                this.dealPendingTime('hh:mm:ss', 'pending');
+            }
+        } else if(this.startTime < Now && Now <= this.endTime) { // 促销活动已经开始
+            this.activity_time_title = '活动仅剩';
+            this.isPromotioning = true;
+            const res = this.countDown(this.endTime / 1000, new Date().valueOf() / 1000, 'hh:mm:ss');
+            this.innerRemainPayTime = res;
+            if (this.timer) {
+                this.clearTimer();
+            }
+            if (!res) {
+                this.isPromotioning = true;
+            }
+            this.dealPendingTime('hh:mm:ss', 'activing');
         } else {
-          this.dealPendingTime('hh:mm:ss', 'pending');
+            this.is_promotion = false;
+            this.innerRemainPayTime = '';
         }
-      } else if (this.startTime < Now && Now <= this.endTime) {
-        // 促销活动已经开始
-        this.activity_time_title = '活动仅剩';
-        this.isPromotioning = true;
-        const res = this.countDown(this.endTime / 1000, new Date().valueOf() / 1000, 'hh:mm:ss');
-        this.innerRemainPayTime = res;
-        if (this.timer) {
-          this.clearTimer();
-        }
-        if (!res) {
-          this.isPromotioning = true;
-        }
-        this.dealPendingTime('hh:mm:ss', 'activing');
-      } else {
-        this.is_promotion = false;
-        this.innerRemainPayTime = '';
-      }
-    },
-    getProductInfo: function(id) {
+      },
+    getProductInfo: function (id) {
       this.getCartCount();
       const ret = getProductInfo(id);
-      ret.then(value => {
+      ret.then((value) => {
         this.good_name = value.data.data.info.title;
         this.good_name_title = value.data.data.info.description;
         this.good_unit = value.data.data.info.unit;
         // 轮播图 商品入户图 商品介绍图
         this.img_list = [];
         this.desc_img = [];
-        value.data.data.info.productImages.forEach((i, k) => {
+        value.data.data.info.productImages.forEach((i,k) => {
           // sku 图
           if (i.type === '1') {
-            this.sku_img.push({ img_src: i.url });
+            this.sku_img.push({img_src:i.url});
           }
           // 轮播图
           if (i.type === '2') {
-            this.img_list.push({ img_src: i.url });
+            this.img_list.push({img_src:i.url});
           }
           // 商品介绍图
           if (i.type === '3') {
-            this.desc_img.push({ img_src: i.url });
+            this.desc_img.push({img_src:i.url});
           }
         });
-        console.log('this.desc_img', this.desc_img);
+          console.log('this.desc_img', this.desc_img);
         // 优惠券
         if (value.data.data.info.coupon_list.length > 0) {
           this.coupon = '领取优惠券';
-          this.coupon_list = value.data.data.info.coupon_list.map(item => ({ ...item, code: item.id }));
+          this.coupon_list = value.data.data.info.coupon_list.map((item) => ({ ...item, code: item.id }));
           this.coupon_text = value.data.data.info.coupon_text;
         }
         // 默认选中最小的sku
@@ -577,75 +596,75 @@ export default {
         this.selectSKU = value.data.data.info.productSkuByMinPrice;
         // 判断当前sku是否是促销
         if (value.data.data.info.productPromotion !== null) {
-          this.productPromotion = value.data.data.info.productPromotion;
-          this.dealPromotionInfo();
+            this.productPromotion = value.data.data.info.productPromotion;
+            this.dealPromotionInfo();
         } else {
           this.is_promotion = false;
           this.money = fenToYuan(this.selectSKU.price);
         }
         // 规格显示
         const skuValue = getProductSKU(value.data.data.info.id);
-        skuValue.then(skuValue => {
+        skuValue.then((skuValue) => {
           console.log(skuValue);
           this.productSku = skuValue.data.data.info.productSku;
           this.productSpecKey = skuValue.data.data.info.productSpecKey;
         });
       });
     },
-    dealPromotionInfo() {
-      const { productPromotionSku = [] } = this.productPromotion || {};
-      const promotingSku = productPromotionSku.find(sku => String(sku.product_sku_id) === String(this.selectSKU.id));
-      this.promotingSku = promotingSku ? true : false;
-      if (promotingSku) {
-        this.promotingMoney = fenToYuan(promotingSku.promotion_price);
-        this.is_promotion = true;
-        this.money = fenToYuan(promotingSku.promotion_price);
-        this.original_price = fenToYuan(this.selectSKU.price);
-        // console.log(promotingSku);
-        this.surplus = promotingSku.promotion_number - promotingSku.used_number;
-        if (this.surplus === 0) {
-          this.is_promotion = false;
-          this.clearTimer();
-          this.innerRemainPayTime = '';
-          this.is_promotion = false;
-          this.money = fenToYuan(this.selectSKU.price);
-          this.promotingSku = false;
-        }
-        this.dealPromotionTime();
-      } else {
-        this.clearTimer();
-        this.innerRemainPayTime = '';
-        this.is_promotion = false;
-        this.money = fenToYuan(this.selectSKU.price);
-      }
-    },
-    addCartShop: function() {
+      dealPromotionInfo() {
+          const { productPromotionSku = [] } = this.productPromotion || {};
+          const promotingSku = productPromotionSku.find((sku) => (String(sku.product_sku_id) === String(this.selectSKU.id)));
+          this.promotingSku = promotingSku ? true : false;
+          if (promotingSku) {
+              this.promotingMoney = fenToYuan(promotingSku.promotion_price);
+              this.is_promotion = true;
+              this.money = fenToYuan(promotingSku.promotion_price);
+              this.original_price = fenToYuan(this.selectSKU.price);
+              // console.log(promotingSku);
+              this.surplus = promotingSku.promotion_number - promotingSku.used_number;
+              if (this.surplus === 0) {
+                this.is_promotion = false;
+                this.clearTimer();
+                this.innerRemainPayTime = '';
+                this.is_promotion = false;
+                this.money = fenToYuan(this.selectSKU.price);
+                this.promotingSku = false;
+              }
+              this.dealPromotionTime();
+          } else {
+              this.clearTimer();
+              this.innerRemainPayTime = '';
+              this.is_promotion = false;
+              this.money = fenToYuan(this.selectSKU.price);
+          }
+      },
+    addCartShop: function () {
       const cart = addCart(this.selectSKU.id, this.good_num);
       uni.showLoading({
         title: '正在添加到购物车...'
       });
-      cart.then(value => {
+      cart.then((value) => {
         this.getCartCount();
         uni.hideLoading();
         return uni.showToast({
           title: '添加成功！',
           duration: 2000,
           icon: 'success',
-          mask: true
+          mask: true,
         });
       });
       this.selectType = 0;
     },
-    getCartCount: function() {
+    getCartCount: function () {
       const ret = getCartCount();
-      ret.then(value => {
+      ret.then((value) => {
         this.good_car_num = value.data.data.info.quantity_count;
       });
     },
-    getAddressList: function() {
+    getAddressList: function () {
       // 地址加载
       const addressListValue = getAddressList();
-      addressListValue.then(value => {
+      addressListValue.then((value) => {
         this.addressList = value.data.data.info;
         this.addressList.forEach((i, k) => {
           if (i.is_default === '1') {
@@ -654,40 +673,38 @@ export default {
         });
       });
     },
-    selectAddress: function(index) {
+    selectAddress: function(index){
       this.activeAddress = this.addressList[index];
       this.closePopup();
     },
-    AddAddress: function() {
+    AddAddress: function(){
       this.$store.commit('users/setEditorData', null);
       return uni.navigateTo({
         url: '/pages/addAddress/addAddress?type=add'
-      });
+      })
     },
-    gotoShoppingCart: function(e) {
+    gotoShoppingCart: function (e) {
       return uni.navigateTo({
         url: '/pages/shop/shoppingCart/index'
       });
     },
-    enterOrder: function(e) {
+    enterOrder: function (e) {
       // 组织调用确认订单的数据接口
       // type 1 购物车 2 直接购买
       this.$store.commit('orders/setShopSelectSku', {
         sku_type: 2,
-        sku_list: [
-          {
-            sku_id: parseInt(this.selectSKU.id, 10),
-            quantity: this.good_num
-          }
-        ],
-        activeAddress: this.activeAddress
+        sku_list: [{
+          sku_id: parseInt(this.selectSKU.id, 10),
+          quantity: this.good_num
+        }],
+        activeAddress: this.activeAddress,
       });
       this.selectType = 0;
       return uni.navigateTo({
         url: '/pages/shop/order/enter'
       });
     },
-    openSku: function() {
+    openSku: function () {
       this.$refs.popup.open();
       this.isPopupSku = true;
       // 打开规格选择时候，记录住之前选中的sku以及数量,方便取消时候回填处理
@@ -697,15 +714,15 @@ export default {
       this.isPopupAddress = false;
       this.isMask = false;
     },
-    openCoupon: function() {
-      if (!this.coupon_list.length) return false;
+    openCoupon: function () {
+      if(!this.coupon_list.length) return false;
       this.$refs.popup.open();
       this.isPopupCoupon = true;
       this.isPopupSku = false;
       this.isPopupAddress = false;
       this.isMask = false;
     },
-    openAddress: function() {
+    openAddress: function () {
       this.$refs.popup.open();
       this.isPopupAddress = true;
       this.isPopupSku = false;
@@ -723,10 +740,10 @@ export default {
       this.showPopup = show;
       this.selectType = show ? this.selectType : 0;
     },
-    closePopup() {
+    closePopup(){
       this.$refs.popup.close();
     }
-  }
+  },
 };
 </script>
 
@@ -796,7 +813,7 @@ export default {
         top: 50%;
         width: 172rpx;
         transform: translateY(-50%);
-        &__title {
+        &__title{
           display: flex;
           align-items: center;
         }
@@ -816,8 +833,8 @@ export default {
         .blot {
           font-size: 24upx;
           font-weight: 400;
-          color: #fd7600;
-          background-color: rgba(255, 255, 255, 0);
+          color: #FD7600;
+          background-color: rgba(255,255,255,0);
           position: relative;
           top: -10upx;
         }
@@ -831,7 +848,7 @@ export default {
           margin: 0 7upx;
           padding: 2upx;
           border-radius: 11upx;
-          background-color: #fd7600;
+          background-color: #FD7600;
           font-size: 24upx;
           color: #fff;
         }
@@ -842,11 +859,11 @@ export default {
       margin-left: 20upx;
       .good-money-unit {
         font-size: 32upx;
-        color: #fd7600;
+        color: #FD7600;
       }
       .good-money-s {
         font-size: 46upx;
-        color: #fd7600;
+        color: #FD7600;
       }
     }
     .good-title-list {
@@ -903,7 +920,7 @@ export default {
     margin-top: 24upx;
     display: flex;
     width: 100%;
-    background: #ffffff;
+    background: #FFFFFF;
     flex-flow: wrap;
     justify-content: center;
     .title {
@@ -927,7 +944,7 @@ export default {
       color: rgba(51, 51, 51, 1);
       margin-left: 0.375rem;
     }
-    .cont {
+    .cont{
       width: 100%;
       padding: 0;
       view {
@@ -936,7 +953,7 @@ export default {
         padding: 0;
         img {
           width: 100%;
-          height: auto;
+          height:auto;
         }
       }
     }
@@ -982,7 +999,7 @@ export default {
       margin-left: 120upx;
       border: 1px solid #fd7600;
       background-color: #fff;
-      color: #fd7600;
+      color:  #fd7600;
     }
     button {
       width: 220upx;
@@ -994,14 +1011,14 @@ export default {
     }
   }
 }
-.ipx-btn-bottom {
+.ipx-btn-bottom{
   bottom: 20rpx;
 }
 
 .popupView {
   position: relative;
   width: 100%;
-  max-height: 941rpx;
+  max-height:941rpx;
   background-color: #fff;
   border-radius: 20upx 20upx 0 0;
   overflow-y: scroll;
@@ -1247,13 +1264,13 @@ export default {
     }
   }
 }
-.wos-scroll-no {
-  height: 98vh;
+.wos-scroll-no{
+  height:98vh;
   overflow-y: hidden;
 }
-.wos-scroll-yes {
-  height: auto;
-  overflow-y: auto;
+.wos-scroll-yes{
+  height:auto;
+  overflow-y:auto;
 }
 .wx-share {
   width: 119rpx;

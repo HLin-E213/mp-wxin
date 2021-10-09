@@ -1,25 +1,27 @@
 <template>
   <view class="show-home">
-    <uni-nav-bar :title="title" :showBcakImg="showBcakImg" :showFooter="false" :isNoLeft="false" footerHeight="0" @clickLeft="clickLeft"></uni-nav-bar>
+  <uni-nav-bar 
+		:title="title" 
+		:showBcakImg="showBcakImg" 
+		:showFooter="false" 
+		:isNoLeft="false" 
+		footerHeight="0" 
+		@clickLeft="clickLeft"
+	>
+	</uni-nav-bar>
     <view class="content">
-      <!--		<view class="fixed-intro">
-              <scroll-view scroll-x="true" class="tab-bar-wrap" :scroll-into-view="viewId">
-                <block v-for="(i,k) in category_list"  :key="k">
-                  <view
-                      :class="['tab', categoryId === i.value ? 'active-tab': '']"
-                      @click="handleClickCategory(i.value, k)"
-                      :id="'menu'+k"
-                  >{{ i.label || '' }}</view>
-
-                </block>
-              </scroll-view>
-          </view>-->
-
-      <!--  搜索栏    -->
-      <view class="search-box"><searchBar v-if="!isFocus"></searchBar></view>
+		<!--  搜索栏    -->
+      <view class="search-box"><searchBar :isCreate="isCreate"></searchBar></view>
       <view v-show="hasMore">
         <uni-load-more :status="loadStatus" ></uni-load-more>
       </view>
+      <mescroll-body
+          :sticky="true" ref="mescrollRef"
+          @init="mescrollInit"
+          @down="downCallback"
+          @up="upCallback"
+          :up="upOption"
+          :style="{top:mescrollTop}">
       <view class="totation-box" v-if="!isCategory">
         <!--  轮播图  -->
         <view class="rotation" :class="{ 'rotation-ns': isNotchScreen }">
@@ -30,85 +32,90 @@
       </view>
       <!--   活动   -->
       <view v-if="!isCategory && promotionList.length"><active :promotion-list="promotionList" @toCategoty="toActivity"></active></view>
-      <view v-if="good_list.length">
-        <view class="goods-list-wrap">
-          <good-list
-              v-for="(i, k) of good_list"
-              :key="k"
-              :goodID="i.id"
-              :goodImg="i.productImages.url"
-              :goodTitle="i.title"
-              :goodTitleDesc="i.description"
-              :money="price(i)"
-              :unit="i.unit"
-              :is-promotion="isPromotion(i)"
-              @openSku="openSku(i)"
-          ></good-list>
-        </view>
-        <template>
-          <view :class="showPopup ? '.wos-scroll-no' : '.wos-scroll-yes'">
-            <uni-popup :maskClick="false" ref="popup" type="bottom" @change="changePopup">
-              <view class="popupView">
-                <view>
-                  <view class="popupSkuView">
-                    <view class="popupClose" @click="cancelSelectSpec"><img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭" /></view>
-                    <view class="popupSkuView-good">
-                      <view class="popupSkuView-good-img-view"><image class="popupSkuView-good-img" mode="aspectFill" :src="sku_img[0] && sku_img[0].img_src"></image></view>
-                      <view class="popupSkuView-good-desc">
-                        <h1 class="popupSkuView-good-desc-title">{{ good_name.length > 10 ? good_name.slice(0, 10) + '...' : good_name }}</h1>
-                        <p class="popupSkuView-good-desc-money">
-                          ￥{{ skuPrice[0] }}.
-                          <span class="popupSkuView-good-desc-money-s">{{ skuPrice[1] }}</span>
-                        </p>
+      <view v-if="good_list.length" :class="{'mt-20': !promotionList.length}">
+      <view class="goods-list-wrap">
+        <good-list v-for="(i,k) of good_list" :key="k"
+                   :goodID="i.id"
+                   :goodImg="i.productImages.url"
+                   :goodTitle="i.title"
+                   :goodTitleDesc="i.description"
+                   :money="price(i)"
+                   :unit="i.unit"
+                   :is-promotion="isPromotion(i)"
+                   @openSku="openSku(i)"
+        ></good-list>
+      </view>
+      <template>
+        <view :class="showPopup ? '.wos-scroll-no' : '.wos-scroll-yes'">
+          <uni-popup :maskClick="false" ref="popup" type="bottom" @change='changePopup'>
+            <view class="popupView">
+              <view>
+                <view class="popupSkuView">
+                  <view class="popupClose" @click="cancelSelectSpec">
+                    <img src="https://admin.dajxyl.com/oss?path=img/close_popup.png" alt="关闭">
+                  </view>
+                  <view class="popupSkuView-good">
+                    <view class="popupSkuView-good-img-view">
+                      <img class="popupSkuView-good-img" :src="sku_img[0] && sku_img[0].img_src" alt="">
+                    </view>
+                    <view class="popupSkuView-good-desc">
+                      <h1 class="popupSkuView-good-desc-title">{{ good_name.length > 10 ? good_name.slice(0,10) + '...' : good_name }}</h1>
+                      <p class="popupSkuView-good-desc-money">￥{{ skuPrice[0] }}.<span class="popupSkuView-good-desc-money-s">{{ skuPrice[1] }}</span></p>
+                    </view>
+                  </view>
+                  <view class="popupSkuView-list">
+                    <view class="popupSkuView-list-item" v-for="sku in productSpecKey">
+                      <h1 class="popupSkuView-list-item-h1">{{ sku.title }}</h1>
+                      <view class="popupSkuView-list-item-button">
+                        <template v-for="skuV in sku.productSpecValue">
+                          <button @click="selectSpec(sku, skuV)" :class="{'active' :  select_spec_id.includes(Number(skuV.id))}">{{ skuV.value }}</button>
+                        </template>
                       </view>
                     </view>
-                    <view class="popupSkuView-list">
-                      <view class="popupSkuView-list-item" v-for="sku in productSpecKey">
-                        <h1 class="popupSkuView-list-item-h1">{{ sku.title }}</h1>
-                        <view class="popupSkuView-list-item-button">
-                          <template v-for="skuV in sku.productSpecValue">
-                            <button @click="selectSpec(sku, skuV)" :class="{ active: select_spec_id.includes(Number(skuV.id)) }">
-                              {{ skuV.value }}
-                            </button>
-                          </template>
-                        </view>
-                      </view>
+                  </view>
+                  <view class="popupSkuView-num">
+                    <h1 class="popupSkuView-list-item-h1-num">数量</h1>
+                    <view class="popupSkuView-item-num">
+                      <img class="num-button" @click="subGoodNum" src="https://admin.dajxyl.com/oss?path=img/reduce@2x.png" alt="-">
+                      <p>{{ good_num }}</p>
+                      <img class="num-button" @click="addGoodNum" src="https://admin.dajxyl.com/oss?path=img/add@2x.png" alt="+">
                     </view>
-                    <view class="popupSkuView-num">
-                      <h1 class="popupSkuView-list-item-h1-num">数量</h1>
-                      <view class="popupSkuView-item-num">
-                        <img class="num-button" @click="subGoodNum" src="https://admin.dajxyl.com/oss?path=img/reduce@2x.png" alt="-" />
-                        <p>{{ good_num }}</p>
-                        <img class="num-button" @click="addGoodNum" src="https://admin.dajxyl.com/oss?path=img/add@2x.png" alt="+" />
-                      </view>
-                    </view>
-                    <view class="popupSkuView-sub"><button class="popupSkuView-sub-btn" @click.stop="ensureSelectSpec">确认</button></view>
+                  </view>
+                  <view class="popupSkuView-sub">
+                    <button class="popupSkuView-sub-btn" @click.stop="ensureSelectSpec">确认</button>
                   </view>
                 </view>
               </view>
-            </uni-popup>
-          </view>
-        </template>
-        <view class="bottom_bottom" v-if="isEnd">———— 我也是有底线的 ————</view>
+            </view>
+          </uni-popup>
+        </view>
+      </template>
+
+      <view class="bottom_bottom">
+        ———— 我也是有底线的 ————
       </view>
-      <empty-data v-if="isCategory && !good_list.length"></empty-data>
-<!--      <movable direction="all" :num="good_car_num"></movable>-->
+      </view>
+      <empty-data v-if="isCategory && !good_list.length && !hasMore"></empty-data>
+
+      </mescroll-body>
     </view>
 
-    <movable direction="all" :num="good_car_num"></movable>
+    <movable
+        direction="all"
+        :num="good_car_num"
+    ></movable>
   </view>
 </template>
 
 <script>
 // import dayjs from 'dayjs';
-import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue';
-// import layout from '@/components/layout/index.vue';
 import movable from '@/components/movableArea/index.vue';
-import goodList from './components/good/goodList.vue';
-import { getProductInfo, getProductList, getProductSKU, getPromotionProduct } from '../../api/shop/product';
-import { addCart, getCartCount } from '../../api/shop/cart';
+import goodList from "./components/good/goodList.vue";
+import { getProductInfo, getProductList, getProductSKU, getPromotionProduct } from "../../api/shop/product";
+import { addCart, getCartCount } from "../../api/shop/cart";
 import { getCategoryList } from '../../api';
 import { fenToYuan } from '@/utils/money';
+import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue';
 import searchBar from './components/searchBar';
 import Banner from '../../components/banner.vue';
 import categoryRotation from './components/categoryRotation';
@@ -117,26 +124,33 @@ import { rotationPicture } from '@/api/index.js';
 import emptyData from './components/empty-data';
 import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
 
+// import { BASE_DATA_LIST } from './baseDataList'
+import MescrollMixin from "@/components/mescroll-uni/components/mescroll-uni/mescroll-mixins.js"
+import MescrollBody from "@/components/mescroll-uni/components/mescroll-body/mescroll-body.vue"
+
 export default {
   name: 'shop',
+  mixins:[MescrollMixin],
   components: {
-    uniNavBar,
-    // layout,
     movable,
     goodList,
+    uniNavBar,
     searchBar,
     Banner,
     categoryRotation,
     active,
     emptyData,
-    uniLoadMore
+    uniLoadMore,
+    MescrollBody
   },
   data() {
     const { isNotchScreen } = getApp().globalData;
     return {
       title: '养老商城',
+      mescrollTop: '100px',
       showBcakImg: false,
       isEnd: false,
+      isCreate: true,
       loadStatus: 'loading',
       hasMore: false,
       // 顶部背景图
@@ -152,7 +166,7 @@ export default {
       good_car_num: 0,
       // 弹层控制
       showPopup: false,
-      sku_img: [{ img_src: '' }, { img_src: '' }],
+      sku_img: [{img_src: ''},{img_src: ''}],
       // 价格
       money: 0,
       // 原价
@@ -172,7 +186,7 @@ export default {
       is_promotion: false,
       // 在选择规格时候该规格是否在促销活动中
       promotingSku: false,
-      promotingMoney: '0.00', // 在选择规格时候该规格的促销价格
+      promotingMoney: '0.00',// 在选择规格时候该规格的促销价格
       // 商品名称
       good_name: '',
       // 商品描述
@@ -206,12 +220,30 @@ export default {
       isCategory: false, // 是否是分类搜索
       keyword: '', // 关键词
       promotionList: [], // 活动列表
-      product_promotion_category_id: ''
-    };
+      product_promotion_category_id: '',
+      upOption:{
+        textNoMore:'没有更多了',
+        noMoreSize:1,
+        toTop:{
+          // src:'https://shigongbang.oss-cn-hangzhou.aliyuncs.com/app/2021/09/1631589174461.png',
+          radius:0,
+          offset : 1,
+        },
+        empty:{
+          use : true ,
+          // icon : 'https://h5-zhaocai.gcw.net/static/img/noLength.e859d3a5.png' ,
+          tip : "暂无数据",
+          btnText : "",
+          fixed: false,
+          top: "200rpx",
+          zIndex: 99
+        }
+      }
+    }
   },
   computed: {
     skuPrice() {
-      const { price = 0 } = this.selectSKU;
+      const { price = 0} = this.selectSKU;
       if (this.promotingSku) {
         return this.promotingMoney.split('.');
       }
@@ -220,16 +252,16 @@ export default {
     select_spec_id() {
       const selectArr = [];
       const { product_spec = [] } = this.selectSKU;
-      product_spec.forEach(spec => {
+      product_spec.forEach((spec) => {
         selectArr.push(spec.product_spec_value.id);
       });
       return selectArr;
     },
     price() {
-      return function({ productSkuByMinPrice, productPromotion }) {
+      return function ({productSkuByMinPrice, productPromotion}) {
         if (productPromotion !== null) {
           let money = null;
-          productPromotion.productPromotionSku.forEach(i => {
+          productPromotion.productPromotionSku.forEach((i) => {
             if (i.product_sku_id == productSkuByMinPrice.id) {
               let surplus = i.promotion_number - i.used_number;
               if (surplus === 0) {
@@ -247,9 +279,9 @@ export default {
       };
     },
     isPromotion() {
-      return function(obj) {
+      return function (obj) {
         if (obj.productPromotion !== null) {
-          return true;
+            return true;
         }
         return false;
       };
@@ -261,7 +293,7 @@ export default {
     this.get_rotation();
   },
   onShow() {
-    const categoryId = uni.getStorageSync('setDefaultShopCategoryId');
+    const categoryId =  uni.getStorageSync('setDefaultShopCategoryId');
     if (categoryId && categoryId !== 'none') {
       this.categoryId = categoryId;
       this.page = 1;
@@ -273,6 +305,13 @@ export default {
     this.clickLeft();
     this.getCartCount();
     this.getPromotionProduct();
+    // 获取元素domHeight的高度，因为是局部滚动， mescroll-uni的top等于.domHeight的高度
+    this.$nextTick(()=>{
+      let domHeight = uni.createSelectorQuery().select(".domHeight");
+      domHeight.boundingClientRect((data)=> {
+        this.mescrollTop = 120 + 'px'
+      }).exec()
+    })
   },
   onReachBottom() {
     if (this.page < this.totalPage) {
@@ -292,6 +331,16 @@ export default {
     this.getProductList();
   },
   methods: {
+    /*上拉加载的回调*/
+    upCallback(page) {
+      // this.mixinRequestParams.pageIndex = page.num
+      // this.getCurrentRequestDataList()
+    },
+    /*下拉刷新的回调 */
+    downCallback() {
+      this.mescroll.resetUpScroll()
+      console.log('下拉')
+    },
     // 获取活动商品列表
     getPromotionProduct: function() {
       let that = this;
@@ -321,19 +370,15 @@ export default {
       this.getProductList();
     },
     getCategoryLists() {
-      getCategoryList(1, 1000).then(res => {
+      getCategoryList(1, 1000).then((res) => {
         const { info } = res.data.data;
         this.category_list = info;
-        // this.category_list = [
-        //   { value: '', label: '全部' },
-        //   ...info.map(({ id: value , name: label }) => ({ value, label })),
-        // ]
-      });
+      })
     },
     getProductList: function() {
       let that = this
       const ret = getProductList(false, this.categoryId, this.keyword, this.product_promotion_category_id, this.pageSize, this.page);
-      ret.then(value => {
+      ret.then((value) => {
         this.totalPage = value.data.data.totalPage;
         if (this.page === 1) {
           this.good_list = value.data.data.info;
@@ -346,49 +391,50 @@ export default {
         uni.stopPullDownRefresh();
       });
     },
-    getCartCount: function() {
+    getCartCount: function () {
       const token = uni.getStorageSync('token');
       if (token) {
         const ret = getCartCount();
-        ret.then(value => {
+        ret.then((value) => {
           this.good_car_num = value.data.data.info.quantity_count;
         });
       } else {
         this.good_car_num = 0;
       }
     },
-    getProductInfo: function(id) {
+    getProductInfo: function (id) {
       const ret = getProductInfo(id);
-      ret.then(value => {
+      ret.then((value) => {
         this.sku_img = [];
         this.good_name = value.data.data.info.title;
         this.good_name_title = value.data.data.info.description;
         this.good_unit = value.data.data.info.unit;
         // 轮播图 商品入户图 商品介绍图
         this.img_list = [];
-        value.data.data.info.productImages.forEach((i, k) => {
+        value.data.data.info.productImages.forEach((i,k) => {
           // sku 图
           if (i.type === '1') {
-            this.sku_img.push({ img_src: i.url });
+            this.sku_img.push({img_src:i.url});
           }
           // 轮播图
           if (i.type === '2') {
-            this.img_list.push({ img_src: i.url });
+            this.img_list.push({img_src:i.url});
           }
           // 商品介绍图
           if (i.type === '3') {
             this.desc_img = [
               ...this.desc_img,
               {
-                img_src: i.url
+                img_src: i.url,
               }
             ];
           }
         });
+        console.log('this.desc_img', this.desc_img);
         // 优惠券
         if (value.data.data.info.coupon_list.length > 0) {
           this.coupon = '领取优惠券';
-          this.coupon_list = value.data.data.info.coupon_list.map(item => ({ ...item, code: item.id }));
+          this.coupon_list = value.data.data.info.coupon_list.map((item) => ({ ...item, code: item.id }));
           this.coupon_text = value.data.data.info.coupon_text;
         }
         // 默认选中最小的sku
@@ -403,15 +449,17 @@ export default {
         }
         // 规格显示
         const skuValue = getProductSKU(value.data.data.info.id);
-        skuValue.then(skuValue => {
+        skuValue.then((skuValue) => {
+          console.log(skuValue);
           this.productSku = skuValue.data.data.info.productSku;
           this.productSpecKey = skuValue.data.data.info.productSpecKey;
         });
       });
     },
-    openSku: function(item) {
+    openSku: function (item) {
       this.$refs.popup.open();
       // 打开规格选择时候，记录住之前选中的sku以及数量,方便取消时候回填处理
+      console.log(item);
       this.getProductInfo(item.id);
       this.beforeSelectSku = JSON.parse(JSON.stringify(this.selectSKU));
       this.beforeGoodNum = this.good_num;
@@ -421,27 +469,27 @@ export default {
     ensureSelectSpec() {
       this.dealPromotionInfo();
       this.addCartShop();
-      this.closePopup();
+      this.closePopup()
     },
-    addCartShop: function() {
+    addCartShop: function () {
       const cart = addCart(this.selectSKU.id, this.good_num);
       uni.showLoading({
         title: '正在添加到购物车...'
       });
-      cart.then(value => {
+      cart.then((value) => {
         this.getCartCount();
         uni.hideLoading();
         return uni.showToast({
           title: '添加成功！',
           duration: 2000,
           icon: 'success',
-          mask: true
+          mask: true,
         });
       });
     },
     dealPromotionInfo() {
       const { productPromotionSku = [] } = this.productPromotion || {};
-      const promotingSku = productPromotionSku.find(sku => String(sku.product_sku_id) === String(this.selectSKU.id));
+      const promotingSku = productPromotionSku.find((sku) => (String(sku.product_sku_id) === String(this.selectSKU.id)));
       this.promotingSku = promotingSku ? true : false;
       if (promotingSku) {
         this.promotingMoney = fenToYuan(promotingSku.promotion_price);
@@ -449,6 +497,7 @@ export default {
         this.money = fenToYuan(promotingSku.promotion_price);
         this.original_price = fenToYuan(this.selectSKU.price);
         this.surplus = promotingSku.promotion_number - promotingSku.used_number;
+        console.log(this.surplus);
         if (this.surplus === 0) {
           this.is_promotion = false;
           this.money = fenToYuan(this.selectSKU.price);
@@ -464,7 +513,7 @@ export default {
       }
     },
     subGoodNum() {
-      this.good_num === 1 ? 0 : (this.good_num -= 1);
+      this.good_num === 1 ? 0 : this.good_num -= 1;
     },
     addGoodNum() {
       this.good_num += 1;
@@ -474,12 +523,12 @@ export default {
       this.good_num = this.beforeGoodNum;
       this.beforeSelectSku = null;
       this.beforeGoodNum = null;
-      this.closePopup();
+      this.closePopup()
     },
-    changePopup({ show }) {
+    changePopup({show}) {
       this.showPopup = show;
     },
-    closePopup() {
+    closePopup(){
       this.$refs.popup.close();
     },
     /**
@@ -493,19 +542,19 @@ export default {
       const { product_spec } = this.selectSKU;
       const { title } = sku;
       let speckeySpecv = '';
-      product_spec.forEach(spec => {
+      product_spec.forEach((spec) => {
         let temp = { ...spec };
-        if (temp.product_spec_key.title === title) {
+        if(temp.product_spec_key.title === title) {
           temp.product_spec_value = skuv;
         }
         //将规格名称id规格值id进行组合，与sku列表内的进行对比，以取出对应的sku；
         speckeySpecv += `${temp.product_spec_key.id}-${temp.product_spec_value.id}`;
       });
-      this.productSku.forEach(product => {
+      this.productSku.forEach((product) => {
         const { product_spec } = product;
         let tempSpeckeySpecv = '';
-        product_spec.forEach(spec => {
-          tempSpeckeySpecv += `${spec.product_spec_key.id}-${spec.product_spec_value.id}`;
+        product_spec.forEach((spec) => {
+          tempSpeckeySpecv += `${spec.product_spec_key.id}-${spec.product_spec_value.id}`
         });
         if (speckeySpecv === tempSpeckeySpecv) {
           if (product.status !== '2') {
@@ -517,12 +566,13 @@ export default {
         }
       });
       const { productPromotionSku = [] } = this.productPromotion || {};
-      const promotingSku = productPromotionSku.find(sku => sku.product_sku_id === this.selectSKU.id);
+      const promotingSku = productPromotionSku.find((sku) => (sku.product_sku_id === this.selectSKU.id));
       this.promotingSku = promotingSku ? true : false;
       if (promotingSku) {
         this.promotingMoney = fenToYuan(promotingSku.promotion_price);
         this.original_price = fenToYuan(this.selectSKU.price);
         this.surplus = promotingSku.promotion_number - promotingSku.used_number;
+        console.log(this.surplus);
         if (this.surplus === 0) {
           this.is_promotion = false;
           this.money = fenToYuan(this.selectSKU.price);
@@ -534,24 +584,29 @@ export default {
           title: '该商品规格已下架！',
           duration: 2000,
           icon: 'none',
-          mask: true
+          mask: true,
         });
       }
     },
     // 分类后返回 初始化一些数据
     clickLeft() {
       this.isFocus = true;
+      this.isCreate = false
       this.$nextTick(() => {
         this.isFocus = false;
+        this.isCreate = true
       });
       this.showBcakImg = false;
       this.isCategory = false;
       this.categoryId = '';
       this.title = '养老商城';
-      this.page = 1;
-      this.pageSize = 10;
-      this.good_list = [];
-      this.getProductList();
+      if(this.product_promotion_category_id){
+        this.page = 1;
+        this.pageSize = 10;
+        this.product_promotion_category_id = ''
+        this.good_list = [];
+        this.getProductList();
+      }
     },
     // 活动商品搜索
     toActivity(obj){
@@ -576,9 +631,6 @@ export default {
   min-height: 100%;
 }
 .content {
-  //display: flex;
-  //flex-direction: row;
-  //flex-wrap: wrap;
   background-color: #f8f8f8;
   .search-box {
     background-color: #ffffff;
@@ -592,15 +644,15 @@ export default {
     display: flex;
     flex-wrap: wrap;
   }
-  .fixed-intro {
+  .fixed-intro{
     position: fixed;
-    background-color: #ffffff;
+    background-color: #FFFFFF;
     z-index: 10;
     width: 100%;
-    .tab-bar-wrap {
+    .tab-bar-wrap{
       height: 88rpx;
       white-space: nowrap;
-      .tab {
+      .tab{
         height: 88rpx;
         position: relative;
         display: inline-block;
@@ -611,12 +663,12 @@ export default {
         margin-left: 53rpx;
         line-height: 88rpx;
       }
-      .active-tab {
+      .active-tab{
         position: relative;
         color: #333333;
         font-weight: 500;
       }
-      .active-tab:after {
+      .active-tab:after{
         position: absolute;
         left: 0;
         bottom: 10rpx;
@@ -626,10 +678,10 @@ export default {
         border-radius: 5rpx;
         background-color: #fd7600;
       }
-      .tab:last-of-type {
+      .tab:last-of-type{
         margin-right: 21rpx;
       }
-      .tab:first-of-type {
+      .tab:first-of-type{
         margin-left: 21rpx;
       }
     }
@@ -657,7 +709,7 @@ scroll-view ::-webkit-scrollbar {
 .popupView {
   position: relative;
   width: 100%;
-  max-height: 990rpx;
+  max-height:990rpx;
   background-color: #fff;
   border-radius: 20upx 20upx 0 0;
   overflow-y: scroll;
@@ -827,5 +879,8 @@ scroll-view ::-webkit-scrollbar {
   height: 285upx;
   z-index: 10;
   border-radius: 0.5rem;
+}
+.mt-20{
+  margin-top: 20rpx;
 }
 </style>

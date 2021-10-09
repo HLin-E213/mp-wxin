@@ -80,21 +80,44 @@
           分享
         </view>
       </button>
+      <view class=" fixed-item" @click.stop="downloadVideo(curVideo)">
+        <img class="fixed-item_img" src="../../../static/download.png" alt="" />
+        <view class="fixed-item_text">
+          下载
+        </view>
+      </view>
     </view>
     <CommentPopup :vid="curVid" ref="commentsPopup" />
+    <movable-area class="play-video-movable-area" v-if="download.showProgress">
+      <movable-view
+      class="movable-view"
+      direction="all"
+      x="500rpx"
+      y="1100rpx"
+      >
+        <Progress :percent="download.progress" type="circle" :stroke-width="8"></Progress>
+      </movable-view>
+    </movable-area>
   </view>
 </template>
 
 <script>
 import { getVideoInfo, videoLove } from '@/api';
 import CommentPopup from './components/commentModal';
+import Progress from './components/progress';
+import { getName } from '../../../utils/tools';
 
-
+const DOWNLOAD_STATUS = {
+  DOWNLOADING: 'DOWNLOADING', // 下载中
+  SUCCESS: 'SUCCESS', // 下载成功
+  FAIL: 'FAIL', //  下载失败
+};
 
 export default {
   name: "play-video",
   components: {
     CommentPopup,
+    Progress,
   },
   watch: {
     currentIndex(newVal) {
@@ -125,6 +148,11 @@ export default {
       },
       videoContext: null,
       isPlaying: false,
+      download: {
+        progress: 0,
+        showProgress: false,
+        status: DOWNLOAD_STATUS.SUCCESS // 默认为下载成功的状态
+      }
     }
   },
   computed: {
@@ -218,6 +246,53 @@ export default {
         this.showPopup = false;
       }, 100);
     },
+    downloadVideo(video) {
+      const vm  = this;
+      if(vm.download.progress) {
+        uni.showToast({
+          title: '正在下载其他视频，请稍后',
+          icon: 'none',
+          duration: 2000
+        });
+        return false;
+      }
+      vm.download.showProgress = true;
+      const { src, title } = video;
+      const downloadTask = uni.downloadFile({
+        url: src,
+        success(res) {
+          const { tempFilePath, statusCode } = res;
+          if (statusCode === 200) {
+            vm.download.progress = 0;
+            vm.download.showProgress = false;
+            uni.saveVideoToPhotosAlbum({
+              filePath: tempFilePath,
+              success() {
+                uni.showToast({
+                  title: `${getName(title)}视频下载成功`,
+                  icon: 'none',
+                  duration: 2000
+                })
+              }
+            });
+          }
+        },
+        fail(e) {
+          console.log('fail', e);
+          uni.showToast({
+            title: JSON.stringify(e),
+            icon: 'none',
+            duration: 200000
+          });
+          vm.download.showProgress = false;
+          vm.download.progress = 0;
+        }
+      });
+      downloadTask.onProgressUpdate((res) => {
+        this.download.progress = res.progress;
+      });
+      console.log('下载', video, this.download);
+    },
     async loveVideo(vid, isLove, index) {
       try {
         uni.showLoading({title: '数据加载中，请稍后'});;
@@ -270,6 +345,20 @@ export default {
 <style lang="less" scoped>
   page{
     background-color: #000000;
+  }
+  .play-video-movable-area{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    .movable-view {
+      pointer-events: auto;
+      width: 128rpx;
+      height: 128rpx;
+    }
   }
   .play-video-page-wrap{
     position: relative;

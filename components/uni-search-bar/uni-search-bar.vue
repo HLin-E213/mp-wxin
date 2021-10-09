@@ -178,7 +178,12 @@
 				if (this.show) {
 					return
 				}
-				this.show = true
+        let routes = getCurrentPages(); // 获取当前打开过的页面路由数组
+        let curRoute = routes[routes.length - 1].route //获取当前页面路
+        if(curRoute == 'pages/shopHome/index'){
+          return
+        }
+        this.show = true
 				this.$nextTick(() => {
 					this.showSync = true
 				})

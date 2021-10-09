@@ -42,3 +42,28 @@ export const getTimeDifferenceByNow = (datestr, now= new Date().getTime())  => {
   
   return parseInt(M / 12) + "年";
 };
+
+export const CHINESE_REGEX = /[\u4e00-\u9fa5]/g;
+/**
+ * 按照字符最大长度截取字符串
+ * 一个中文两个字符 其他的为一个字符
+ * @params
+ * name string required
+ * maxLen number 需要截取的字符长度，如果name的总长度不超过maxLen则返回原字符串，否则进行截取
+ * @return string
+ * */
+export const getName = (name, maxLen) => {
+  let len = 0,
+    result = [];
+  const nameCodes = name.split('');
+  nameCodes.some((item) => {
+    if (CHINESE_REGEX.test(item)) {
+      len += 2;
+    } else {
+      len += 1;
+    }
+    result = [...result, item];
+    return len >= maxLen;
+  });
+  return result.join('');
+};

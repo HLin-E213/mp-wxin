@@ -16,12 +16,17 @@
     <view class="icon-more" v-if="showMore && hasMoreBtn" @click="toChange">
       <uni-icons type="arrowup" size="12" color="#666666"></uni-icons>
     </view>
+    <uni-popup :maskClick="false" ref="popup" type="center">
+      <uni-popup-dialog title="确定删除全部历史记录?" type="info" :duration="2000" @confirm="onOk" @close="()=>this.$refs.popup.close()"></uni-popup-dialog>
+    </uni-popup>
   </view>
 
 </template>
 
 <script>
 import uniIcons from '@/components/uni-icons/uni-icons.vue';
+import uniPopup from '@/components/uni-popup/uni-popup.vue'
+import uniPopupDialog from '@/components/uni-popup/uni-popup-dialog.vue'
 
 export default {
   name: 'history',
@@ -32,7 +37,9 @@ export default {
     }
   },
   components: {
-    uniIcons
+    uniIcons,
+    uniPopup,
+    uniPopupDialog
   },
   data() {
     return {
@@ -86,10 +93,13 @@ export default {
     },
     //清空历史记录
     clearAll() {
-      this.$emit('clearAll');
+      this.$refs.popup.open()
     },
     toGoods(v) {
       this.$emit('toGoods', {value: v});
+    },
+    onOk(){
+      this.$emit('clearAll');
     }
   }
 };

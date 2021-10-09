@@ -3,16 +3,16 @@
 		<view class="uni-dialog-title">
 			<text class="uni-dialog-title-text" :class="['uni-popup__'+dialogType]">{{title}}</text>
 		</view>
-		<view class="uni-dialog-content">
+		<view class="uni-dialog-content" v-if="content">
 			<text class="uni-dialog-content-text" v-if="mode === 'base'">{{content}}</text>
 			<input v-else class="uni-dialog-input" v-model="val" type="text" :placeholder="placeholder" :focus="focus" >
 		</view>
 		<view class="uni-dialog-button-group">
-			<view class="uni-dialog-button" @click="close">
+      <view class="uni-dialog-button custom-confirm-button" @click="onOk">
+        <text class="uni-dialog-button-text">确认</text>
+      </view>
+			<view class="uni-dialog-button custom-cancel-button" @click="close">
 				<text class="uni-dialog-button-text">取消</text>
-			</view>
-			<view class="uni-dialog-button uni-border-left" @click="onOk">
-				<text class="uni-dialog-button-text uni-button-color">确定</text>
 			</view>
 		</view>
 
@@ -149,9 +149,10 @@
 
 <style lang="scss" scoped>
 	.uni-popup-dialog {
-		width: 300px;
-		border-radius: 15px;
+		width: 620rpx;
+		border-radius: 10px;
 		background-color: #fff;
+    padding: 0 36rpx;
 	}
 
 	.uni-dialog-title {
@@ -160,13 +161,14 @@
 		/* #endif */
 		flex-direction: row;
 		justify-content: center;
-		padding-top: 15px;
-		padding-bottom: 5px;
+    align-items: center;
+    height: 162rpx;
 	}
 
 	.uni-dialog-title-text {
-		font-size: 16px;
-		font-weight: 500;
+		font-size: 32rpx;
+    font-family: PingFang-SC-Regular;
+    color: #666;
 	}
 
 	.uni-dialog-content {
@@ -189,9 +191,10 @@
 		display: flex;
 		/* #endif */
 		flex-direction: row;
-		border-top-color: #f5f5f5;
-		border-top-style: solid;
-		border-top-width: 1px;
+		border-top: 1px solid rgba(153,153,153,0.2);
+    height: 121rpx;
+    align-items: center;
+    justify-content: space-around;
 	}
 
 	.uni-dialog-button {
@@ -199,11 +202,12 @@
 		display: flex;
 		/* #endif */
 
-		flex: 1;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		height: 45px;
+    height: 70rpx;
+    width: 200rpx;
+    border-radius: 35rpx;
 	}
 
 	.uni-border-left {
@@ -213,9 +217,19 @@
 	}
 
 	.uni-dialog-button-text {
-		font-size: 14px;
+		font-size: 30rpx;
 	}
-
+  .custom-confirm-button{
+    color: #fff;
+    font-weight: 500;
+    background: #fd7600;
+    font-family: PingFang-SC-Medium;
+  }
+  .custom-cancel-button{
+    color: #fd7600;
+    background: #fff;
+    border: 1px solid #fd7600;
+  }
 	.uni-button-color {
 		color: $uni-color-primary;
 	}

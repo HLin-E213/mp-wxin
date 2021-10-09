@@ -9,13 +9,13 @@
           <view class="category-box"
                 :class="[promotionList.length > 1?'boc':'', promotionList.length != 1? `item-${i}` : '']"
                 v-for="(e, i) in item" :key="i"
-                :style="{width: (screenWidth/2-5) + 'px'}"
+                :style="{width: (screenWidth/2 - 10) + 'px'}"
                 :id="'item-'+index+'-'+i"
                 @click="gotoInfo(e)">
             <view class="act-title">
               <view class="tit-right">
                 <view class="act-tit">{{ e.name }}</view>
-                <view class="price-intro">{{ e.subtitle }}</view>
+                <view class="price-intro" v-if="e.subtitle">{{ e.subtitle }}</view>
               </view>
             </view>
             <view class="preview-img">
@@ -101,8 +101,6 @@ export default {
       this.idx = 1
     },
     scrolltolower() {
-      console.log('end')
-      let that = this
       this.lists  = this.initList(this.contactArr, this.promotionList)
 
     },
@@ -139,7 +137,9 @@ scroll-view {
   height: 0;
   color: transparent;
 }
-
+.nav-bar{
+  overflow-anchor: none;
+}
 .nav-bar-wrap {
   width: 100%;
   display: flex;
@@ -148,7 +148,7 @@ scroll-view {
 
 .activity {
   margin: 20rpx 20rpx 24rpx 20rpx;
-  padding: 16rpx 21rpx 18rpx 26rpx;
+  padding: 16rpx 0 18rpx 10px;
   background-color: #ffecec;
   border-radius: 10rpx;
 
@@ -156,11 +156,6 @@ scroll-view {
     width: 100%;
     height: 100%;
   }
-}
-
-.item-0 {
-  // width: 50%!important;
-  // margin-right: 10px;
 }
 
 .category-box {
@@ -205,8 +200,7 @@ scroll-view {
 }
 
 .boc {
-  // width: calc(50% - 13rpx);
-  margin-right: 5px;
+  margin-right: 10px;
 }
 
 .preview-img {

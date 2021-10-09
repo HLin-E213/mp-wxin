@@ -23,6 +23,22 @@ import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue';
 import uniIcons from '@/components/uni-icons/uni-icons.vue';
 export default {
   name: 'searchBar',
+  props:{
+    isCreate: {
+      type: Boolean,
+      default: false
+    }
+  },
+  watch: {
+    isCreate: {
+      immediate: true,
+      handler(newVal) {
+        if(newVal){
+          this.getHistory();
+        }
+      }
+    }
+  },
   components: {
     uniSearchBar,
     uniNavBar,
@@ -40,11 +56,12 @@ export default {
     this.isFocus = false;
   },
   mounted() {
-    this.getHistory();
+
   },
   methods: {
     // 获取历史搜索
     async getHistory() {
+      console.log('dddd')
       let list = await uni.getStorage({
         key: 'searchList'
       });

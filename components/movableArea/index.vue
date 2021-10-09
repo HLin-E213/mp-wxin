@@ -86,10 +86,10 @@ export default {
 <style scoped lang="less">
   .movableArea1 {
     position: fixed;
-    top: 80px;
+    top: 100px;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 100px);
     pointer-events: none;
     z-index: 999;
     .movable-view {

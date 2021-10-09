@@ -6,6 +6,7 @@
             :class="[isFixed?'is-fixed':'']" id="scrollId" :style="{top: nameTop + 'px', padding: isSearch?'0 45rpx':'0 20rpx'}">
         <view class="search-box">
           <uni-search-bar
+              v-model="keyword"
               :value="keyword"
               :focus="isFocus"
               :list="historySearchList"
@@ -93,7 +94,7 @@
         </template>
         <view class="bottom_bottom">———— 我也是有底线的 ————</view>
       </view>
-      <empty-data v-if="isSearch && !good_list.length"></empty-data>
+      <empty-data v-if="isSearch && !good_list.length && !hasMore"></empty-data>
     </view>
     <movable direction="all" :num="good_car_num" v-if="isSearch"></movable>
   </layout>
@@ -136,7 +137,7 @@ export default {
       historySearchList: [],
       keyword: '', // 搜索词
       iconUrl: require('@/static/search2.png'),
-      isFocus: true,
+      isFocus: false,
       isEmpty: false, // 是否空热搜商品
       inputShowVal: '',
       hotProList: [],
@@ -280,7 +281,6 @@ export default {
   created(){
     this.keyword = ''
     // this.inputShowVal = ''
-    this.isFocus = true
   },
   onShow() {
     this.isFocus = false;
@@ -316,12 +316,22 @@ export default {
       if(!e.value){
         e.value = ''
       }
+
+      this.isSearch = true;
+      this.page = 1;
+      this.pageSize = 10;
       this.keyword = e.value.replace(/(^\s*)|(\s*$)/g, '');
       const patrn = /[`~!@#$%^&*()_\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘’，。、]/im;
-      if (patrn.test(this.keyword) || this.keyword == '') {
+      const emoji = /(\ud83c[\udf00-\udfff])|(\ud83d[\udc00-\ude4f\ude80-\udeff])|[\u2600-\u2B55]/g
+      if (patrn.test(this.keyword) || emoji.test(this.keyword) || this.keyword == '') {
         if (this.hotProList.length) {
           this.keyword = this.hotProList[0];
           this.search({value: this.keyword})
+        }else{
+          this.page = 1;
+          this.pageSize = 10;
+          this.hasMore = false
+          this.good_list = []
         }
       } else {
         if (!this.historySearchList.includes(this.keyword)) {
@@ -340,11 +350,8 @@ export default {
             data: JSON.stringify(this.historySearchList)
           });
         }
+        this.getProductList();
       }
-      this.isSearch = true;
-      this.page = 1;
-      this.pageSize = 10;
-      this.getProductList();
     },
     async getHistory() {
       let list = await uni.getStorage({
@@ -397,8 +404,10 @@ export default {
     // 获取热搜商品
     getHotProduct: function() {
       const ret = getHotProduct();
+      this.isFocus = false
       ret.then(value => {
         this.hotProList = value.data.data.info;
+        this.isFocus = true
       });
     },
     getCartCount: function() {

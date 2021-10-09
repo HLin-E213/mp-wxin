@@ -364,7 +364,7 @@
       "style": {
         "navigationBarTitleText": "商城",
         "navigationBarTextStyle": "black",
-        "enablePullDownRefresh": true
+        "enablePullDownRefresh": false
       }
     }
     ],
