@@ -22,12 +22,17 @@
               :radius="18"
           >
           </uni-search-bar>
-        </view> 
+        </view>
         <view class="dajx-search-btn" v-if="!isSearch" @click="search({value: keyword})">搜索</view>
       </view>
-      <view v-show="hasMore">
-        <uni-load-more :status="loadStatus" ></uni-load-more>
-      </view>
+      <mescroll-body
+              :sticky="true" ref="mescrollRef"
+              @init="mescrollInit"
+              @down="downCallback"
+              @up="upCallback"
+              :up="upOption"
+              :down="downOption"
+              :style="{top:mescrollTop}">
       <!--  历史搜索  -->
       <history ref="history" :list="historySearchList" @toGoods="search" @clearAll="clearAll" v-if="historySearchList.length && !isSearch"></history>
       <!--  热搜商品  -->
@@ -95,6 +100,7 @@
         <view class="bottom_bottom">———— 我也是有底线的 ————</view>
       </view>
       <empty-data v-if="isSearch && !good_list.length && !hasMore"></empty-data>
+      </mescroll-body>
     </view>
     <movable direction="all" :num="good_car_num" v-if="isSearch"></movable>
   </layout>
@@ -111,12 +117,12 @@ import movable from '@/components/movableArea/index.vue';
 import goodList from '@/pages/shopHome/components/good/goodList.vue';
 import { getProductInfo, getProductList, getProductSKU, getHotProduct } from '@/api/shop/product';
 import { addCart, getCartCount } from '@/api/shop/cart';
-import { getCategoryList } from '@/api';
 import { fenToYuan } from '@/utils/money';
-import { rotationPicture } from '@/api/index.js';
-import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
+import MescrollMixin from "@/components/mescroll-uni/components/mescroll-uni/mescroll-mixins.js"
+import MescrollBody from "@/components/mescroll-uni/components/mescroll-body/mescroll-body.vue"
 export default {
   name: 'search',
+  mixins:[MescrollMixin],
   components: {
     layout,
     uniSearchBar,
@@ -126,14 +132,13 @@ export default {
     movable,
     goodList,
     emptyData,
-    uniLoadMore
+    MescrollBody
   },
   data() {
     return {
       title: '搜索',
+      mescrollTop: '100px',
       isSearch: false,
-      loadStatus: 'loading',
-      hasMore: false,
       historySearchList: [],
       keyword: '', // 搜索词
       iconUrl: require('@/static/search2.png'),
@@ -146,6 +151,7 @@ export default {
       page: 1,
       pageSize: 10,
       totalPage: 0,
+      currentPage: 0,
       good_list: [],
       category_list: [],
       // 购物车商品数
@@ -205,7 +211,17 @@ export default {
       isFixed: false,
       nameTop: '',
       rect: 0,
-      product_promotion_category_id: ''
+      product_promotion_category_id: '',
+      upOption:{
+        textNoMore:'',
+        noMoreSize:1,
+        auto: false,
+        use: false
+      },
+      downOption:{
+        auto: false,
+        use: false
+      }
     };
   },
   computed: {
@@ -277,6 +293,7 @@ export default {
       if(res && res[0])
         that.nameTop = res[0].top
     })
+
   },
   created(){
     this.keyword = ''
@@ -293,24 +310,44 @@ export default {
       this.getProductList();
       uni.removeStorageSync('setDefaultShopCategoryId');
     }
+    // 获取元素domHeight的高度，因为是局部滚动， mescroll-uni的top等于.domHeight的高度
+    this.$nextTick(()=>{
+      let domHeight = uni.createSelectorQuery().select(".domHeight");
+      domHeight.boundingClientRect((data)=> {
+        this.mescrollTop = 120 + 'px'
+      }).exec()
+    })
     this.getCartCount();
     this.getHotProduct();
     this.getHistory();
   },
-  onReachBottom() {
-    if (this.page < this.totalPage) {
-      this.page++;
-      this.getProductList();
+  watch:{
+    isSearch:{
+      immediate: true,
+      deep: true,
+      handler(val){
+        if(val){
+          this.$set(this.upOption, 'use', true)
+          this.$set(this.downOption, 'use', true)
+        }
+      }
     }
   },
-  onPullDownRefresh() {
-    this.page = 1;
-    this.pageSize = 10;
-    this.hasMore = true
-    this.loadStatus = 'loading'
-    this.getProductList();
-  },
   methods: {
+    /*上拉加载的回调*/
+    upCallback(page) {
+      this.page = page.num + 1
+      this.getProductList()
+    },
+    /*下拉刷新的回调 */
+    downCallback() {
+      this.page = 1;
+      this.pageSize = 10
+      this.currentPage = 0
+      this.totalPage = 0
+      this.mescroll.optUp.page.num = 0;
+      this.getProductList();
+    },
     // 搜索数据
     search(e) {
       if(!e.value){
@@ -390,13 +427,15 @@ export default {
       const ret = getProductList(false, this.categoryId, this.keyword, this.product_promotion_category_id, this.pageSize, this.page);
       ret.then(value => {
         this.totalPage = value.data.data.totalPage;
+        this.currentPage =  value.data.data.currentPage;
         if (this.page === 1) {
           this.good_list = value.data.data.info;
         } else {
           this.good_list.push(...value.data.data.info);
         }
+        this.mescroll.endBySize(value.data.data.info.length, this.totalPage)
       }).finally(function() {
-        that.hasMore = false
+        that.mescroll.endSuccess()
         uni.hideLoading();
         uni.stopPullDownRefresh();
       });
@@ -615,6 +654,8 @@ export default {
   display: flex;
   align-items: center;
   background-color: #FFFFFF;
+  position: sticky;
+  z-index: 999;
   .search-box {
     flex: 1;
   }

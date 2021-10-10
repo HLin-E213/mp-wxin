@@ -1,18 +1,18 @@
 <template>
-	<view 
-	class="mescroll-body mescroll-render-touch" 
+	<view
+	class="mescroll-body mescroll-render-touch"
 	:class="{'mescorll-sticky': sticky}"
-	:style="{'minHeight':minHeight, 'padding-top': padTop, 'padding-bottom': padBottom}" 
-	@touchstart="wxsBiz.touchstartEvent" 
-	@touchmove="wxsBiz.touchmoveEvent" 
-	@touchend="wxsBiz.touchendEvent" 
+	:style="{'minHeight':minHeight, 'padding-top': padTop, 'padding-bottom': padBottom}"
+	@touchstart="wxsBiz.touchstartEvent"
+	@touchmove="wxsBiz.touchmoveEvent"
+	@touchend="wxsBiz.touchendEvent"
 	@touchcancel="wxsBiz.touchendEvent"
 	:change:prop="wxsBiz.propObserver"
 	:prop="wxsProp"
 	>
 		<!-- 状态栏 -->
 		<view v-if="topbar&&statusBarHeight" class="mescroll-topbar" :style="{height: statusBarHeight+'px', background: topbar}"></view>
-		
+
 		<view class="mescroll-body-content mescroll-wxs-content" :style="{ transform: translateY, transition: transition }" :change:prop="wxsBiz.callObserver" :prop="callProp">
 			<!-- 下拉加载区域 (支付宝小程序子组件传参给子子组件仍报单项数据流的异常,暂时不通过mescroll-down组件实现)-->
 			<!-- <mescroll-down :option="mescroll.optDown" :type="downLoadType" :rate="downRate"></mescroll-down> -->
@@ -22,7 +22,7 @@
 					<view class="downwarp-tip">{{downText}}</view>
 				</view>
 			</view>
-	
+
 			<!-- 列表内容 -->
 			<slot></slot>
 
@@ -38,21 +38,21 @@
 					<view class="upwarp-tip">{{ mescroll.optUp.textLoading }}</view>
 				</view>
 				<!-- 无数据 -->
-				<view v-if="upLoadType===2" class="upwarp-nodata">{{ mescroll.optUp.textNoMore }}</view>
+				<view v-if="upLoadType===2 && mescroll.optUp.textNoMore" class="upwarp-nodata">{{ mescroll.optUp.textNoMore }}</view>
 			</view>
 		</view>
-		
+
 		<!-- 底部是否偏移TabBar的高度(默认仅在H5端的tab页生效) -->
 		<!-- #ifdef H5 -->
 		<view v-if="bottombar && windowBottom>0" class="mescroll-bottombar" :style="{height: windowBottom+'px'}"></view>
 		<!-- #endif -->
-		
+
 		<!-- 适配iPhoneX -->
 		<view v-if="safearea" class="mescroll-safearea"></view>
-		
+
 		<!-- 回到顶部按钮 (fixed元素需写在transform外面,防止降级为absolute)-->
 		<mescroll-top v-model="isShowToTop" :option="mescroll.optUp.toTop" @click="toTopClick"></mescroll-top>
-		
+
 		<!-- #ifdef MP-WEIXIN || MP-QQ || APP-PLUS || H5 -->
 		<!-- renderjs的数据载体,不可写在mescroll-downwarp内部,避免use为false时,载体丢失,无法更新数据 -->
 		<view :change:prop="renderBiz.propObserver" :prop="wxsProp"></view>
@@ -86,7 +86,7 @@
 	import MescrollTop from "../mescroll-uni/components/mescroll-top.vue";
 	// 引入兼容wxs(含renderjs)写法的mixins
 	import WxsMixin from "../mescroll-uni/wxs/mixins.js";
-	
+
 	/**
 	 * mescroll-body 基于page滚动的下拉刷新和上拉加载组件, 支持嵌套原生组件, 性能好
 	 * @property {Object} down 下拉刷新的参数配置
@@ -100,9 +100,9 @@
 	 * @property {String, Number} height 指定mescroll最小高度,默认windowHeight,使列表不满屏仍可下拉
 	 * @property {Boolean} bottombar 底部是否偏移TabBar的高度 (仅在H5端的tab页生效)
 	 * @property {Boolean} sticky 是否支持sticky,默认false; 当值配置true时,需避免在mescroll-body标签前面加非定位的元素,否则下拉区域无法隐藏
-	 * @event {Function} init 初始化完成的回调 
+	 * @event {Function} init 初始化完成的回调
 	 * @event {Function} down 下拉刷新的回调
-	 * @event {Function} up 上拉加载的回调 
+	 * @event {Function} up 上拉加载的回调
 	 * @event {Function} emptyclick 点击empty配置的btnText按钮回调
 	 * @event {Function} topclick 点击回到顶部的按钮回调
 	 * @event {Function} scroll 滚动监听 (需在 up 配置 onScroll:true 才生效)
@@ -249,7 +249,7 @@
 						vm.downHight = downHight; // 设置下拉区域的高度 (自定义mescroll组件时,此行不可删)
 					},
 					beforeEndDownScroll(mescroll){
-						vm.downLoadType = 4; 
+						vm.downLoadType = 4;
 						return mescroll.optDown.beforeEndDelay // 延时结束的时长
 					},
 					endDownScroll() {
@@ -299,7 +299,7 @@
 					}
 				}
 			};
-			
+
 			let i18nType = mescrollI18n.getType() // 当前语言类型
 			let i18nOption = {type: i18nType} // 国际化配置
 			MeScroll.extend(i18nOption, vm.i18n) // 具体页面的国际化配置
@@ -366,7 +366,7 @@
 			if (vm.up && vm.up.toTop && vm.up.toTop.safearea != null) {} else {
 				vm.mescroll.optUp.toTop.safearea = vm.safearea;
 			}
-			
+
 			// 全局配置监听
 			uni.$on("setMescrollGlobalOption", options=>{
 				if(!options) return;

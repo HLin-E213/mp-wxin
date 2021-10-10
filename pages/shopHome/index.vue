@@ -1,26 +1,24 @@
 <template>
   <view class="show-home">
-  <uni-nav-bar 
-		:title="title" 
-		:showBcakImg="showBcakImg" 
-		:showFooter="false" 
-		:isNoLeft="false" 
-		footerHeight="0" 
+  <uni-nav-bar
+		:title="title"
+		:showBcakImg="showBcakImg"
+		:showFooter="false"
+		:isNoLeft="false"
+		footerHeight="0"
 		@clickLeft="clickLeft"
 	>
 	</uni-nav-bar>
     <view class="content">
 		<!--  搜索栏    -->
       <view class="search-box"><searchBar :isCreate="isCreate"></searchBar></view>
-      <view v-show="hasMore">
-        <uni-load-more :status="loadStatus" ></uni-load-more>
-      </view>
       <mescroll-body
           :sticky="true" ref="mescrollRef"
           @init="mescrollInit"
           @down="downCallback"
           @up="upCallback"
           :up="upOption"
+          :down="downOption"
           :style="{top:mescrollTop}">
       <view class="totation-box" v-if="!isCategory">
         <!--  轮播图  -->
@@ -95,7 +93,7 @@
         ———— 我也是有底线的 ————
       </view>
       </view>
-      <empty-data v-if="isCategory && !good_list.length && !hasMore"></empty-data>
+      <empty-data v-if="isCategory && !good_list.length"></empty-data>
 
       </mescroll-body>
     </view>
@@ -122,9 +120,6 @@ import categoryRotation from './components/categoryRotation';
 import active from './components/activity';
 import { rotationPicture } from '@/api/index.js';
 import emptyData from './components/empty-data';
-import uniLoadMore from "@/components/uni-load-more/uni-load-more.vue";
-
-// import { BASE_DATA_LIST } from './baseDataList'
 import MescrollMixin from "@/components/mescroll-uni/components/mescroll-uni/mescroll-mixins.js"
 import MescrollBody from "@/components/mescroll-uni/components/mescroll-body/mescroll-body.vue"
 
@@ -140,7 +135,6 @@ export default {
     categoryRotation,
     active,
     emptyData,
-    uniLoadMore,
     MescrollBody
   },
   data() {
@@ -149,10 +143,7 @@ export default {
       title: '养老商城',
       mescrollTop: '100px',
       showBcakImg: false,
-      isEnd: false,
       isCreate: true,
-      loadStatus: 'loading',
-      hasMore: false,
       // 顶部背景图
       // showBackGroundImg: 'https://admin.dajxyl.com/oss?path=img/wodebg1@2x.png',
       // 商品列表
@@ -160,6 +151,7 @@ export default {
       page: 1,
       pageSize: 10,
       totalPage: 0,
+      currentPage: 0,
       good_list: [],
       category_list: [],
       // 购物车商品数
@@ -222,22 +214,12 @@ export default {
       promotionList: [], // 活动列表
       product_promotion_category_id: '',
       upOption:{
-        textNoMore:'没有更多了',
+        textNoMore:'',
         noMoreSize:1,
-        toTop:{
-          // src:'https://shigongbang.oss-cn-hangzhou.aliyuncs.com/app/2021/09/1631589174461.png',
-          radius:0,
-          offset : 1,
-        },
-        empty:{
-          use : true ,
-          // icon : 'https://h5-zhaocai.gcw.net/static/img/noLength.e859d3a5.png' ,
-          tip : "暂无数据",
-          btnText : "",
-          fixed: false,
-          top: "200rpx",
-          zIndex: 99
-        }
+        auto: false
+      },
+      downOption:{
+        auto: false
       }
     }
   },
@@ -313,33 +295,20 @@ export default {
       }).exec()
     })
   },
-  onReachBottom() {
-    if (this.page < this.totalPage) {
-      this.isEnd = false
-      this.page++;
-      // uni.showLoading({ title: '数据加载中，请稍后' });
-      this.getProductList();
-    }else{
-      this.isEnd = true
-    }
-  },
-  onPullDownRefresh() {
-    this.page = 1;
-    this.pageSize = 10;
-    this.hasMore = true
-    this.loadStatus = 'loading'
-    this.getProductList();
-  },
   methods: {
     /*上拉加载的回调*/
     upCallback(page) {
-      // this.mixinRequestParams.pageIndex = page.num
-      // this.getCurrentRequestDataList()
+        this.page = page.num + 1
+        this.getProductList()
     },
     /*下拉刷新的回调 */
     downCallback() {
-      this.mescroll.resetUpScroll()
-      console.log('下拉')
+      this.page = 1;
+      this.pageSize = 10
+      this.currentPage = 0
+      this.totalPage = 0
+      this.mescroll.optUp.page.num = 0;
+      this.getProductList();
     },
     // 获取活动商品列表
     getPromotionProduct: function() {
@@ -380,13 +349,15 @@ export default {
       const ret = getProductList(false, this.categoryId, this.keyword, this.product_promotion_category_id, this.pageSize, this.page);
       ret.then((value) => {
         this.totalPage = value.data.data.totalPage;
+        this.currentPage =  value.data.data.currentPage;
         if (this.page === 1) {
           this.good_list = value.data.data.info;
         } else {
           this.good_list.push(...value.data.data.info);
         }
+        this.mescroll.endBySize(value.data.data.info.length, this.totalPage)
       }).finally(function() {
-        that.hasMore = false
+        that.mescroll.endSuccess()
         uni.hideLoading();
         uni.stopPullDownRefresh();
       });
@@ -634,6 +605,8 @@ export default {
   background-color: #f8f8f8;
   .search-box {
     background-color: #ffffff;
+    position: sticky;
+    z-index: 999;
   }
   .totation-box {
     background-color: #ffffff;
